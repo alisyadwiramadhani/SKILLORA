@@ -3,3 +3,6 @@ vendor/
 node_modules/
 .DS_Store
 Thumbs.db
+
+config/database.php
+config/database.local.php
