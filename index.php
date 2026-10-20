@@ -1,8 +1,13 @@
-
 <?php
-session_start();
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
 
-if (!isset($_SESSION["ID_User"])) {
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+if (empty($_SESSION["ID_User"])) {
     header("Location: backend/login_form.php");
     exit;
 }
@@ -13,7 +18,6 @@ $nama = htmlspecialchars(
     "UTF-8"
 );
 ?>
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -511,7 +515,10 @@ $nama = htmlspecialchars(
             <div class="visual-card">
                 <div class="visual-icon">🌱</div>
                 <h2>Grow Your Skills</h2>
-                <p>Kenali kemampuanmu dan kembangkan potensimu selangkah demi selangkah.</p>
+                <p>
+                    Kenali kemampuanmu dan kembangkan potensimu
+                    selangkah demi selangkah.
+                </p>
 
                 <strong style="font-size: 13px; color: #42665a;">
                     Pengembangan diri dimulai di sini
@@ -526,7 +533,9 @@ $nama = htmlspecialchars(
 
     <section class="section-heading">
         <h2>Jelajahi Skillora</h2>
-        <p>Pilih fitur untuk mengenali potensimu dan menemukan arah karier.</p>
+        <p>
+            Pilih fitur untuk mengenali potensimu dan menemukan arah karier.
+        </p>
     </section>
 
     <section class="cards">

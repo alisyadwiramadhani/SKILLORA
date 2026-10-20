@@ -1,3 +1,4 @@
+
 <?php
 session_start();
 
@@ -21,10 +22,7 @@ try {
             LIMIT 1";
 
     $stmt = $conn->prepare($sql);
-    $stmt->execute([
-        ":id_user" => $id_user
-    ]);
-
+    $stmt->execute([":id_user" => $id_user]);
     $assessment = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$assessment) {
@@ -44,13 +42,10 @@ try {
             ORDER BY Question_Order ASC";
 
     $stmt = $conn->prepare($sql);
-    $stmt->execute([
-        ":id_assessment" => $id_assessment
-    ]);
-
+    $stmt->execute([":id_assessment" => $id_assessment]);
     $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Ambil semua pilihan jawaban untuk setiap pertanyaan
+    // Ambil pilihan jawaban untuk setiap pertanyaan
     $stmt_opsi = $conn->prepare(
         "SELECT ID_Option, Option_Label, Option_Text
          FROM T_Question_Option
@@ -63,9 +58,7 @@ try {
     foreach ($questions as $question) {
         $id_question = (int) $question["ID_Assessment_Question"];
 
-        $stmt_opsi->execute([
-            ":id_question" => $id_question
-        ]);
+        $stmt_opsi->execute([":id_question" => $id_question]);
 
         $question["options"] = $stmt_opsi->fetchAll(PDO::FETCH_ASSOC);
         $daftar_pertanyaan[] = $question;
@@ -81,7 +74,6 @@ function h($value) {
     return htmlspecialchars((string) $value, ENT_QUOTES, "UTF-8");
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -98,12 +90,12 @@ function h($value) {
             margin: 0;
             font-family: "Segoe UI", Arial, sans-serif;
             color: #263b36;
-            background: #f3f8f7;
+            background: #f1f7f5;
             line-height: 1.6;
         }
 
         header {
-            padding: 20px 6%;
+            padding: 18px 6%;
             background: #176b5b;
             color: white;
         }
@@ -111,23 +103,27 @@ function h($value) {
         header a {
             color: white;
             text-decoration: none;
-            font-size: 27px;
+            font-size: 26px;
             font-weight: 800;
         }
 
         main {
-            width: 92%;
-            max-width: 850px;
-            margin: 35px auto;
+            width: min(92%, 980px);
+            margin: 32px auto;
         }
 
-        .intro, .question-card {
-            background: white;
-            border: 1px solid #e4eeea;
-            border-radius: 16px;
-            padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 5px 18px rgba(30, 72, 60, 0.05);
+        .intro,
+        .question-card,
+        .empty-card {
+            background: #fff;
+            border: 1px solid #e0ebe6;
+            border-radius: 22px;
+            padding: clamp(22px, 4vw, 38px);
+            box-shadow: 0 8px 28px rgba(30, 72, 60, .05);
+        }
+
+        .intro {
+            margin-bottom: 25px;
         }
 
         .tag {
@@ -137,7 +133,8 @@ function h($value) {
             color: #176b5b;
             border-radius: 20px;
             font-size: 12px;
-            font-weight: 700;
+            font-weight: 800;
+            letter-spacing: .4px;
         }
 
         h1 {
@@ -150,32 +147,84 @@ function h($value) {
             color: #65756f;
         }
 
+        .progress-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin: 0 0 10px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #176b5b;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 8px;
+            background: #e6efeb;
+            border-radius: 99px;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .progress-fill {
+            width: 0;
+            height: 100%;
+            background: #218b69;
+            border-radius: inherit;
+            transition: width .25s ease;
+        }
+
+        /* Hanya slide aktif yang ditampilkan */
+        .question-card {
+            display: none;
+        }
+
+        .question-card.active {
+            display: block;
+            animation: slideIn .25s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: .5;
+                transform: translateX(18px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
         .question-number {
             color: #176b5b;
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 800;
-            margin-bottom: 8px;
+            margin: 0 0 12px;
         }
 
         .question-card h2 {
-            font-size: 18px;
-            margin: 0 0 18px;
+            font-size: clamp(20px, 2.6vw, 27px);
+            line-height: 1.55;
+            margin: 0 0 26px;
+            color: #263b36;
         }
 
         .option {
             display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            padding: 13px 15px;
-            margin: 10px 0;
-            border: 1px solid #e0eae5;
-            border-radius: 10px;
+            align-items: center;
+            gap: 14px;
+            padding: 18px 20px;
+            margin: 12px 0;
+            border: 1px solid #dce8e2;
+            border-radius: 15px;
             cursor: pointer;
-            transition: background 0.2s, border-color 0.2s;
+            font-size: clamp(15px, 1.8vw, 19px);
+            transition: background .2s, border-color .2s;
         }
 
         .option:hover {
-            background: #f1f8f5;
+            background: #f5faf7;
             border-color: #8dbdaf;
         }
 
@@ -185,26 +234,72 @@ function h($value) {
         }
 
         .option input {
-            margin-top: 5px;
+            width: 19px;
+            height: 19px;
+            flex: 0 0 19px;
             accent-color: #176b5b;
         }
 
-        .submit-button {
-            display: block;
-            width: 100%;
-            border: none;
-            border-radius: 10px;
-            padding: 15px;
-            margin-top: 25px;
-            color: white;
-            background: #176b5b;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
+        .option strong {
+            color: #193b35;
         }
 
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .nav-button,
+        .submit-button {
+            border: 0;
+            border-radius: 11px;
+            padding: 13px 22px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background .2s, opacity .2s;
+        }
+
+        .previous-button {
+            background: #e7efeb;
+            color: #36564c;
+        }
+
+        .previous-button:hover:not(:disabled) {
+            background: #d9e7e0;
+        }
+
+        .next-button,
+        .submit-button {
+            background: #176b5b;
+            color: #fff;
+        }
+
+        .next-button:hover,
         .submit-button:hover {
             background: #105447;
+        }
+
+        .nav-button:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+        }
+
+        .submit-button {
+            display: none;
+        }
+
+        .message {
+            display: none;
+            color: #a13d32;
+            background: #fff1ef;
+            border-radius: 10px;
+            padding: 10px 13px;
+            margin-top: 16px;
+            font-size: 14px;
         }
 
         footer {
@@ -216,15 +311,42 @@ function h($value) {
 
         @media (max-width: 600px) {
             main {
-                margin-top: 20px;
+                margin: 20px auto;
             }
 
-            .intro, .question-card {
-                padding: 19px;
+            .intro,
+            .question-card,
+            .empty-card {
+                border-radius: 16px;
+                padding: 20px;
             }
 
             h1 {
                 font-size: 25px;
+            }
+
+            .option {
+                padding: 15px;
+                gap: 11px;
+            }
+
+            .navigation {
+                gap: 8px;
+            }
+
+            .nav-button,
+            .submit-button {
+                padding: 12px 14px;
+                font-size: 13px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation: none !important;
+                transition: none !important;
             }
         }
     </style>
@@ -239,31 +361,52 @@ function h($value) {
     <section class="intro">
         <span class="tag">ASSESSMENT KETERAMPILAN</span>
         <h1>Kenali Potensimu</h1>
+
         <p class="muted">
-            Pilih satu jawaban yang paling menggambarkan dirimu
-            untuk setiap pertanyaan. Pastikan semua pertanyaan dijawab
-            sebelum mengirimkan hasil.
+            Pilih satu jawaban yang paling menggambarkan dirimu.
+            Gunakan tombol Sebelumnya dan Selanjutnya untuk berpindah
+            pertanyaan.
         </p>
-        <p><strong>Total pertanyaan:</strong> <?= count($daftar_pertanyaan) ?></p>
+
+        <p>
+            <strong>Total pertanyaan:</strong>
+            <?= count($daftar_pertanyaan) ?>
+        </p>
     </section>
 
     <?php if (empty($daftar_pertanyaan)): ?>
 
-        <section class="question-card">
+        <section class="empty-card">
             <h2>Pertanyaan belum tersedia</h2>
             <p class="muted">
-                Assessment ini belum memiliki pertanyaan. Silakan
-                kembali ke dashboard dan mulai assessment kembali.
+                Assessment ini belum memiliki pertanyaan.
+                Silakan kembali ke dashboard.
             </p>
             <a href="../../index.php">Kembali ke Dashboard</a>
         </section>
 
     <?php else: ?>
 
-        <form action="simpan_jawaban.php" method="POST">
+        <div class="progress-top">
+            <span id="progress-label">
+                Pertanyaan 1 dari <?= count($daftar_pertanyaan) ?>
+            </span>
+            <span id="progress-percent">0% selesai</span>
+        </div>
+
+        <div class="progress-track" aria-label="Progres assessment">
+            <div class="progress-fill" id="progress-fill"></div>
+        </div>
+
+        <form id="assessment-form" action="simpan_jawaban.php" method="POST">
+
             <?php foreach ($daftar_pertanyaan as $index => $question): ?>
 
-                <section class="question-card">
+                <section
+                    class="question-card<?= $index === 0 ? ' active' : '' ?>"
+                    data-question-index="<?= $index ?>"
+                    aria-hidden="<?= $index === 0 ? 'false' : 'true' ?>"
+                >
                     <p class="question-number">
                         PERTANYAAN <?= $index + 1 ?>
                     </p>
@@ -279,12 +422,12 @@ function h($value) {
                     <?php else: ?>
 
                         <?php foreach ($question["options"] as $option): ?>
+
                             <label class="option">
                                 <input
                                     type="radio"
                                     name="jawaban[<?= (int) $question["ID_Assessment_Question"] ?>]"
                                     value="<?= (int) $option["ID_Option"] ?>"
-                                    required
                                 >
 
                                 <span>
@@ -292,6 +435,7 @@ function h($value) {
                                     <?= h($option["Option_Text"]) ?>
                                 </span>
                             </label>
+
                         <?php endforeach; ?>
 
                     <?php endif; ?>
@@ -299,9 +443,37 @@ function h($value) {
 
             <?php endforeach; ?>
 
-            <button class="submit-button" type="submit">
-                Simpan Jawaban &amp; Lanjutkan
-            </button>
+            <p class="message" id="validation-message" role="alert">
+                Pilih satu jawaban sebelum melanjutkan.
+            </p>
+
+            <div class="navigation">
+                <button
+                    type="button"
+                    class="nav-button previous-button"
+                    id="previous-button"
+                    disabled
+                >
+                    ← Sebelumnya
+                </button>
+
+                <button
+                    type="button"
+                    class="nav-button next-button"
+                    id="next-button"
+                >
+                    Selanjutnya →
+                </button>
+
+                <button
+                    type="submit"
+                    class="submit-button"
+                    id="submit-button"
+                >
+                    Simpan Jawaban &amp; Lanjutkan
+                </button>
+            </div>
+
         </form>
 
     <?php endif; ?>
@@ -310,5 +482,137 @@ function h($value) {
 <footer>
     &copy; <?= date("Y") ?> Skillora — Kenali potensimu, temukan arah kariermu.
 </footer>
+
+<script>
+(() => {
+    const form = document.getElementById("assessment-form");
+
+    if (!form) {
+        return;
+    }
+
+    const slides = Array.from(
+        form.querySelectorAll(".question-card[data-question-index]")
+    );
+
+    if (slides.length === 0) {
+        return;
+    }
+
+    const previousButton = document.getElementById("previous-button");
+    const nextButton = document.getElementById("next-button");
+    const submitButton = document.getElementById("submit-button");
+    const progressLabel = document.getElementById("progress-label");
+    const progressPercent = document.getElementById("progress-percent");
+    const progressFill = document.getElementById("progress-fill");
+    const message = document.getElementById("validation-message");
+
+    let current = 0;
+
+    function isAnswered(slide) {
+        return slide.querySelector(
+            'input[type="radio"]:checked'
+        ) !== null;
+    }
+
+    function updateProgress() {
+        const answered = slides.filter(isAnswered).length;
+        const percent = Math.round((answered / slides.length) * 100);
+
+        progressLabel.textContent =
+            `Pertanyaan ${current + 1} dari ${slides.length}`;
+
+        progressPercent.textContent = `${percent}% selesai`;
+        progressFill.style.width = `${percent}%`;
+    }
+
+    function showSlide(index) {
+        current = index;
+
+        slides.forEach((slide, i) => {
+            const isActive = i === current;
+
+            slide.classList.toggle("active", isActive);
+            slide.setAttribute(
+                "aria-hidden",
+                isActive ? "false" : "true"
+            );
+        });
+
+        previousButton.disabled = current === 0;
+
+        nextButton.style.display =
+            current === slides.length - 1 ? "none" : "inline-block";
+
+        submitButton.style.display =
+            current === slides.length - 1 ? "inline-block" : "none";
+
+        message.style.display = "none";
+
+        updateProgress();
+
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+    }
+
+    function validateCurrentSlide() {
+        if (!isAnswered(slides[current])) {
+            message.textContent =
+                "Pilih satu jawaban sebelum melanjutkan.";
+
+            message.style.display = "block";
+            return false;
+        }
+
+        message.style.display = "none";
+        return true;
+    }
+
+    previousButton.addEventListener("click", () => {
+        if (current > 0) {
+            showSlide(current - 1);
+        }
+    });
+
+    nextButton.addEventListener("click", () => {
+        if (!validateCurrentSlide()) {
+            return;
+        }
+
+        if (current < slides.length - 1) {
+            showSlide(current + 1);
+        }
+    });
+
+    form.addEventListener("change", (event) => {
+        if (event.target.matches('input[type="radio"]')) {
+            message.style.display = "none";
+            updateProgress();
+        }
+    });
+
+    form.addEventListener("submit", (event) => {
+        const unansweredIndex = slides.findIndex(
+            slide => !isAnswered(slide)
+        );
+
+        if (unansweredIndex !== -1) {
+            event.preventDefault();
+
+            showSlide(unansweredIndex);
+
+            message.textContent =
+                "Pertanyaan ini belum dijawab. Silakan pilih satu jawaban.";
+
+            message.style.display = "block";
+        }
+    });
+
+    showSlide(0);
+})();
+</script>
+
 </body>
 </html>
