@@ -1,5 +1,4 @@
 
-
 <?php
 session_start();
 
@@ -158,93 +157,60 @@ if (count($jawaban) !== $total_pertanyaan) {
             FILTER_VALIDATE_INT
         );
 
-        $id_option = filter_var(
-            $id_option,
-            FILTER_VALIDATE_INT
-        );
+        
+$id_option = filter_var(
+    $id_option,
+    FILTER_VALIDATE_INT
+);
 
-        if (
-            $id_pertanyaan === false ||
-            $id_pertanyaan === null ||
-            $id_pertanyaan <= 0 ||
-            $id_option === false ||
-            $id_option === null ||
-            $id_option <= 0
-        ) {
-        if (
-            $id_pertanyaan === false ||
-            $id_pertanyaan === null ||
-            $id_pertanyaan <= 0 ||
-            $id_option === false ||
-            $id_option === null ||
-            $id_option <= 0
-        ) {
-            throw new Exception("Data jawaban tidak valid.");
-        }
+if (
+    $id_pertanyaan === false ||
+    $id_pertanyaan === null ||
+    $id_pertanyaan <= 0 ||
+    $id_option === false ||
+    $id_option === null ||
+    $id_option <= 0
+) {
+    throw new Exception("Data jawaban tidak valid.");
+}
 
-        // Pastikan pertanyaan termasuk assessment aktif
-        $cek_pertanyaan->execute([
-            ":id_pertanyaan" => $id_pertanyaan,
-            ":id_assessment" => $id_assessment
-        ]);
+// Pastikan pertanyaan termasuk assessment aktif
+$cek_pertanyaan->execute([
+    ":id_pertanyaan" => $id_pertanyaan,
+    ":id_assessment" => $id_assessment
+]);
 
-        if (!$cek_pertanyaan->fetch(PDO::FETCH_ASSOC)) {
-            throw new Exception("Pertanyaan tidak valid.");
-        }
+if (!$cek_pertanyaan->fetch(PDO::FETCH_ASSOC)) {
+    throw new Exception("Pertanyaan tidak valid.");
+}
 
-        // Pastikan pilihan jawaban sesuai dengan pertanyaannya
-        $cek_opsi->execute([
-            ":id_option" => $id_option,
-            ":id_pertanyaan" => $id_pertanyaan,
-            ":id_assessment" => $id_assessment
-        ]);
-        // Pastikan pertanyaan termasuk assessment aktif
-        $cek_pertanyaan->execute([
-            ":id_pertanyaan" => $id_pertanyaan,
-            ":id_assessment" => $id_assessment
-        ]);
+// Pastikan pilihan jawaban sesuai dengan pertanyaannya
+$cek_opsi->execute([
+    ":id_option" => $id_option,
+    ":id_pertanyaan" => $id_pertanyaan,
+    ":id_assessment" => $id_assessment
+]);
 
-        if (!$cek_pertanyaan->fetch(PDO::FETCH_ASSOC)) {
-            throw new Exception("Pertanyaan tidak valid.");
-        }
+if (!$cek_opsi->fetch(PDO::FETCH_ASSOC)) {
+    throw new Exception("Pilihan jawaban tidak valid.");
+}
 
-        // Pastikan pilihan jawaban sesuai dengan pertanyaannya
-        $cek_opsi->execute([
-            ":id_option" => $id_option,
-            ":id_pertanyaan" => $id_pertanyaan,
-            ":id_assessment" => $id_assessment
-        ]);
+// Simpan jawaban menggunakan PDO
+$simpan->execute([
+    ":id_assessment" => $id_assessment,
+    ":id_pertanyaan" => $id_pertanyaan,
+    ":id_option" => $id_option
+]);
 
-        if (!$cek_opsi->fetch(PDO::FETCH_ASSOC)) {
-        if (!$cek_opsi->fetch(PDO::FETCH_ASSOC)) {
-            throw new Exception("Pilihan jawaban tidak valid.");
-        }
+}
 
-        // Simpan jawaban menggunakan PDO
-        $simpan->execute([
-            ":id_assessment" => $id_assessment,
-            ":id_pertanyaan" => $id_pertanyaan,
-            ":id_option" => $id_option
-        ]);
-        // Simpan jawaban menggunakan PDO
-        $simpan->execute([
-            ":id_assessment" => $id_assessment,
-            ":id_pertanyaan" => $id_pertanyaan,
-            ":id_option" => $id_option
-        ]);
-    }
+$conn->commit();
 
-    $conn->commit();
-
-    // Simpan ID assessment untuk proses selanjutnya
-    $_SESSION["ID_Assessment"] = $id_assessment;
-    // Simpan ID assessment untuk proses selanjutnya
-    $_SESSION["ID_Assessment"] = $id_assessment;
+// Simpan ID assessment untuk proses selanjutnya
+$_SESSION["ID_Assessment"] = $id_assessment;
 
 } catch (Throwable $e) {
-    if ($conn->inTransaction()) {
-        $conn->rollBack();
-    }
+
     if ($conn->inTransaction()) {
         $conn->rollBack();
     }
@@ -252,12 +218,14 @@ if (count($jawaban) !== $total_pertanyaan) {
     error_log("Simpan jawaban Skillora gagal: " . $e->getMessage());
 
     http_response_code(500);
+
     exit(
         "Gagal menyimpan jawaban. Periksa kembali struktur tabel database "
         . "dan pastikan setiap pertanyaan memiliki pilihan jawaban yang valid."
     );
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="id">
