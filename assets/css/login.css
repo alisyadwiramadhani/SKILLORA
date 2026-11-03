@@ -1,0 +1,386 @@
+
+/* =========================================
+   SKILLORA - LOGIN PAGE
+   ========================================= */
+
+body {
+    min-height: 100vh;
+    padding: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e3f5f3;
+}
+
+/* Layout utama */
+.container {
+    width: 100%;
+    max-width: 1200px;
+    min-height: 680px;
+    display: grid;
+    grid-template-columns: 1.08fr 0.92fr;
+    overflow: hidden;
+    background: #ffffff;
+    border-radius: 24px;
+    box-shadow: 0 12px 40px rgba(45, 94, 91, 0.08);
+}
+
+/* =========================================
+   BAGIAN ILUSTRASI
+   ========================================= */
+
+.illustration {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 42px 46px 32px;
+    overflow: hidden;
+    background:
+        radial-gradient(
+            circle at 15% 18%,
+            rgba(255, 255, 255, 0.9) 0 3px,
+            transparent 4px
+        ),
+        #f0faf8;
+}
+
+.brand {
+    color: var(--dashboard-teal-dark);
+    font-size: 25px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    white-space: nowrap;
+    text-decoration: none;
+}
+
+.brand span {
+    color: #e0b95f;
+}
+
+.illustration-content {
+    position: relative;
+    z-index: 1;
+    max-width: 440px;
+    margin: auto 0;
+    padding: 32px 0;
+}
+
+.illustration-icon {
+    width: 100%;
+    max-width: 360px;
+    height: 300px;
+    margin: 0 auto 28px;
+    background-image: url("../images/penguin.png");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+/* Judul dan deskripsi */
+.illustration-content h1 {
+    margin: 0 0 16px;
+    color: #347c79;
+    font-size: clamp(28px, 3vw, 39px);
+    line-height: 1.2;
+    letter-spacing: -1px;
+}
+
+.illustration-content p {
+    max-width: 390px;
+    margin: 0;
+    color: #64817d;
+    font-size: 15px;
+    line-height: 1.8;
+}
+
+.illustration small {
+    position: relative;
+    z-index: 1;
+    color: #78938f;
+    font-size: 12px;
+}
+
+/* Dekorasi lingkaran lembut */
+.illustration::before,
+.illustration::after {
+    position: absolute;
+    content: "";
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.illustration::before {
+    width: 230px;
+    height: 230px;
+    top: 20%;
+    right: -110px;
+    background: rgba(177, 224, 217, 0.25);
+}
+
+.illustration::after {
+    width: 150px;
+    height: 150px;
+    bottom: -75px;
+    left: -45px;
+    background: rgba(177, 224, 217, 0.3);
+}
+
+/* =========================================
+   BAGIAN FORM LOGIN
+   ========================================= */
+
+.form-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 56px clamp(28px, 5vw, 72px);
+    background: #ffffff;
+}
+
+.form-panel h2 {
+    margin: 0 0 10px;
+    color: #347c79;
+    font-size: clamp(27px, 3vw, 34px);
+    line-height: 1.25;
+    letter-spacing: -0.7px;
+}
+
+.subtitle {
+    margin: 0 0 30px;
+    color: #7b918e;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+/* Pesan registrasi */
+.notice {
+    margin-bottom: 22px;
+    padding: 13px 15px;
+    border: 1px solid #c9e9d7;
+    border-radius: 10px;
+    background: #effaf3;
+    color: #26734d;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+/* Input */
+.field {
+    margin-bottom: 20px;
+}
+
+.field label {
+    display: block;
+    margin-bottom: 8px;
+    color: #385c58;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.field input {
+    width: 100%;
+    min-height: 49px;
+    padding: 13px 15px;
+    border: 1px solid #bfd5d2;
+    border-radius: 11px;
+    outline: none;
+    background: #ffffff;
+    color: #234b49;
+    font-size: 14px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.field input::placeholder {
+    color: #a1b5b2;
+}
+
+.field input:focus {
+    border-color: #568b8b;
+    box-shadow: 0 0 0 3px rgba(86, 139, 139, 0.12);
+}
+
+/* Ingat saya dan lupa password */
+.options {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 2px 0 26px;
+    font-size: 12px;
+}
+
+.remember {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #68827e;
+    cursor: pointer;
+}
+
+.remember input {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    accent-color: #568b8b;
+}
+
+.options a,
+.bottom-text a {
+    color: #398581;
+    text-decoration: none;
+}
+
+.options a:hover,
+.bottom-text a:hover {
+    text-decoration: underline;
+}
+
+/* Tombol masuk */
+.form-panel .btn {
+    width: 100%;
+    min-height: 49px;
+    padding: 13px 18px;
+    border: none;
+    border-radius: 11px;
+    background: #568b8b;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.form-panel .btn:hover {
+    background: #397876;
+}
+
+.form-panel .btn:active {
+    transform: scale(0.99);
+}
+
+/* Tautan daftar akun */
+.bottom-text {
+    margin: 25px 0 0;
+    color: #7b918e;
+    font-size: 13px;
+    line-height: 1.8;
+    text-align: center;
+}
+
+/* =========================================
+   RESPONSIVE - TABLET
+   ========================================= */
+
+@media (max-width: 850px) {
+    body {
+        padding: 20px;
+    }
+
+    .container {
+        max-width: 620px;
+        grid-template-columns: 1fr;
+    }
+
+    .illustration {
+        min-height: auto;
+        padding: 28px 32px 20px;
+    }
+
+    .illustration-content {
+        display: grid;
+        grid-template-columns: 0.85fr 1fr;
+        align-items: center;
+        gap: 20px;
+        max-width: none;
+        padding: 25px 0;
+    }
+
+    .illustration-icon {
+        height: 190px;
+        margin: 0;
+    }
+
+    .illustration-content h1 {
+        font-size: 27px;
+    }
+
+    .illustration-content p {
+        font-size: 13px;
+    }
+
+    .form-panel {
+        padding: 36px 40px 42px;
+    }
+}
+
+/* =========================================
+   RESPONSIVE - MOBILE
+   ========================================= */
+
+@media (max-width: 520px) {
+    body {
+        display: block;
+        padding: 12px;
+    }
+
+    .container {
+        min-height: calc(100vh - 24px);
+        border-radius: 18px;
+    }
+
+    .illustration {
+        padding: 22px 22px 10px;
+    }
+
+    .brand {
+        font-size: 23px;
+    }
+
+    .illustration-content {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        padding: 14px 0 20px;
+    }
+
+    .illustration-icon {
+        width: 100%;
+        max-width: 210px;
+        height: 155px;
+        margin: 0 auto;
+    }
+
+    .illustration-content h1 {
+        margin-bottom: 8px;
+        font-size: 25px;
+    }
+
+    .illustration-content p {
+        font-size: 13px;
+    }
+
+    .illustration small {
+        font-size: 11px;
+    }
+
+    .form-panel {
+        padding: 30px 23px 34px;
+    }
+
+    .form-panel h2 {
+        font-size: 28px;
+    }
+
+    .subtitle {
+        margin-bottom: 24px;
+    }
+
+    .field {
+        margin-bottom: 17px;
+    }
+
+    .options {
+        margin-bottom: 22px;
+    }
+}

@@ -1,6 +1,7 @@
+
 <?php
 
-require_once "../../config/database.php";
+require_once __DIR__ . "/../../config/database.php";
 
 $sql = "SELECT
             qo.Option_Label,
@@ -14,19 +15,23 @@ $sql = "SELECT
             ON osw.ID_Skill = s.ID_Skill
         ORDER BY qo.ID_Option, s.ID_Skill";
 
-$result = $conn->query($sql);
+try {
+    $stmt = $conn->query($sql);
 
-if (!$result) {
-    die("Query gagal: " . $conn->error);
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        echo "Pilihan " . htmlspecialchars($row["Option_Label"]) . ": ";
+        echo htmlspecialchars($row["Option_Text"]) . "<br>";
+
+        echo "Skill: " . htmlspecialchars($row["Nama_Skill"]) . "<br>";
+        echo "Bobot: " . htmlspecialchars((string) $row["Weight"]) . "<br><hr>";
+    }
+
+    $stmt->closeCursor();
+
+} catch (PDOException $e) {
+    error_log("Gagal mengambil data bobot: " . $e->getMessage());
+    http_response_code(500);
+    echo "Gagal mengambil data bobot.";
 }
 
-while ($row = $result->fetch_assoc()) {
-    echo "Pilihan " . htmlspecialchars($row["Option_Label"]) . ": ";
-    echo htmlspecialchars($row["Option_Text"]) . "<br>";
-
-    echo "Skill: " . htmlspecialchars($row["Nama_Skill"]) . "<br>";
-    echo "Bobot: " . $row["Weight"] . "<br><hr>";
-}
-
-$conn->close();
 ?>

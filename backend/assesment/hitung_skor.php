@@ -1,6 +1,7 @@
+
 <?php
 
-require_once "../../config/database.php";
+require_once __DIR__ . "/../../config/database.php";
 
 // Untuk pengujian, kita gunakan pilihan A
 $id_option = 1;
@@ -11,25 +12,35 @@ $sql = "SELECT
         FROM T_Option_Skill_Weight osw
         JOIN T_Skill s
             ON osw.ID_Skill = s.ID_Skill
-        WHERE osw.ID_Option = ?";
+        WHERE osw.ID_Option = :id_option";
 
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $id_option);
-$stmt->execute();
+try {
+    $stmt = $conn->prepare($sql);
 
-$result = $stmt->get_result();
+    $stmt->execute([
+        ":id_option" => $id_option
+    ]);
 
-echo "<h2>Hasil Skor Skill</h2>";
+    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-if ($result->num_rows === 0) {
-    echo "Bobot untuk pilihan ini belum ditemukan.";
+    echo "<h2>Hasil Skor Skill</h2>";
+
+    if (empty($result)) {
+        echo "Bobot untuk pilihan ini belum ditemukan.";
+    }
+
+    foreach ($result as $row) {
+        echo htmlspecialchars($row["Nama_Skill"]);
+        echo ": " . htmlspecialchars((string) $row["Weight"]) . "<br>";
+    }
+
+    $stmt->closeCursor();
+
+} catch (PDOException $e) {
+    error_log("Gagal menghitung skor skill: " . $e->getMessage());
+
+    http_response_code(500);
+    echo "Gagal mengambil data skor skill.";
 }
 
-while ($row = $result->fetch_assoc()) {
-    echo htmlspecialchars($row["Nama_Skill"]);
-    echo ": " . $row["Weight"] . "<br>";
-}
-
-$stmt->close();
-$conn->close();
 ?>
