@@ -1,3 +1,4 @@
+
 <?php
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
@@ -6,31 +7,21 @@ ini_set('display_startup_errors', '1');
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-error_reporting(E_ALL);
-ini_set('display_errors', '1');
-ini_set('display_startup_errors', '1');
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-if (empty($_SESSION["ID_User"])) {
+// Periksa apakah pengguna sudah login
 if (empty($_SESSION["ID_User"])) {
     header("Location: backend/login_form.php");
     exit;
 }
 
-$nama = htmlspecialchars(
-    $_SESSION["Nama"] ?? "Pengguna",
-    ENT_QUOTES,
-    "UTF-8"
-);
+// Ambil nama pengguna dari session
 $nama = htmlspecialchars(
     $_SESSION["Nama"] ?? "Pengguna",
     ENT_QUOTES,
     "UTF-8"
 );
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -124,7 +115,6 @@ $nama = htmlspecialchars(
                 dan potensi yang kamu miliki.
             </p>
             <a class="button" href="backend/assesment/start.php">
-                Mulai Assessment <span>→</span>
                 Mulai Assessment <span>→</span>
             </a>
         </article>

@@ -353,8 +353,14 @@ function h($value) {
 </head>
 
 <body>
-<header>
-    <a href="../../index.php">🌿 Skillora</a>
+<header class="assessment-header">
+    <a href="../../index.php" class="brand">
+        🌿 Skillora
+    </a>
+
+    <a href="../../index.php" class="back-dashboard">
+        ← Kembali ke Dashboard
+    </a>
 </header>
 
 <main>

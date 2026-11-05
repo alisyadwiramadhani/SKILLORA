@@ -1,17 +1,18 @@
+
 <!DOCTYPE html>
-<html lang="id">
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Masuk | Skillora</title>
-    <link rel="stylesheet" href="../assets/css/global.css">
-<link rel="stylesheet" href="../assets/css/login.css">
-</head>
 
+    <link rel="stylesheet" href="../assets/css/global.css">
+    <link rel="stylesheet" href="../assets/css/login.css">
+</head>
 
 <body>
     <main class="container">
+
         <section class="illustration">
             <a class="brand" href="../landing.php">Skillora</a>
 
@@ -48,6 +49,7 @@
             <?php endif; ?>
 
             <form action="login.php" method="POST">
+
                 <div class="field">
                     <label for="email">Alamat Email</label>
 
@@ -88,48 +90,7 @@
                 <button type="submit" class="btn">
                     Masuk ke Skillora
                 </button>
-            </form>
-            <form action="login.php" method="POST">
-                <div class="field">
-                    <label for="email">Alamat Email</label>
 
-                    <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        placeholder="nama@email.com"
-                        autocomplete="email"
-                        required
-                    >
-                </div>
-
-                <div class="field">
-                    <label for="password">Password</label>
-
-                    <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        placeholder="Masukkan password"
-                        autocomplete="current-password"
-                        required
-                    >
-                </div>
-
-                <div class="options">
-                    <label class="remember">
-                        <input type="checkbox" name="remember">
-                        Ingat saya
-                    </label>
-
-                    <a href="#" onclick="return false;">
-                        Lupa password?
-                    </a>
-                </div>
-
-                <button type="submit" class="btn">
-                    Masuk ke Skillora
-                </button>
             </form>
 
             <p class="bottom-text">
@@ -138,16 +99,9 @@
                     <strong>Daftar sekarang</strong>
                 </a>
             </p>
+
         </section>
-    </main>
-            <p class="bottom-text">
-                Belum punya akun?
-                <a href="register_form.php">
-                    <strong>Daftar sekarang</strong>
-                </a>
-            </p>
-        </section>
+
     </main>
 </body>
 </html>
-

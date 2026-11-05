@@ -13,16 +13,17 @@ $id_user = (int) $_SESSION["ID_User"];
 
 try {
     // Ambil assessment terbaru milik user yang sudah memiliki skor
-    $sql = "SELECT a.ID_Assessment
-            FROM T_Assessment a
-            WHERE a.ID_User = :id_user
-              AND EXISTS (
-                  SELECT 1
-                  FROM T_Hasil_Assessment h
-                  WHERE h.ID_Assessment = a.ID_Assessment
-              )
-            ORDER BY a.ID_Assessment DESC
-            LIMIT 1";
+   $sql = "SELECT a.ID_Assessment
+        FROM T_Assessment a
+        WHERE a.ID_User = :id_user
+          AND a.Status = 'Completed'
+          AND EXISTS (
+              SELECT 1
+              FROM T_Hasil_Assessment h
+              WHERE h.ID_Assessment = a.ID_Assessment
+          )
+        ORDER BY a.ID_Assessment DESC
+        LIMIT 1";
 
     $stmt = $conn->prepare($sql);
     $stmt->execute([":id_user" => $id_user]);
