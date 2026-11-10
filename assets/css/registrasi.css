@@ -1,7 +1,11 @@
-
 /* ==========================================
    SKILLORA - REGISTRATION PAGE
-   ========================================== */
+========================================== */
+
+/* Pengaturan dasar */
+* {
+    box-sizing: border-box;
+}
 
 body {
     min-height: 100vh;
@@ -37,7 +41,7 @@ body {
 }
 
 .brand {
-    color: var(--dashboard-teal-dark);
+    color: var(--dashboard-teal-dark, #347c79);
     font-size: 25px;
     font-weight: 800;
     letter-spacing: -1px;
@@ -92,7 +96,7 @@ body {
     font-size: 12px;
 }
 
-/* Dekorasi lembut */
+/* Dekorasi ilustrasi */
 .illustration::before,
 .illustration::after {
     position: absolute;
@@ -141,8 +145,14 @@ body {
     line-height: 1.7;
 }
 
-/* Field form */
+/* Form pendaftaran */
+.form-panel form {
+    width: 100%;
+    margin: 0;
+}
+
 .field {
+    width: 100%;
     margin-bottom: 18px;
 }
 
@@ -155,6 +165,7 @@ body {
 }
 
 .field input {
+    display: block;
     width: 100%;
     min-height: 47px;
     padding: 12px 14px;
@@ -198,6 +209,7 @@ body {
 
 /* Tombol daftar */
 .form-panel .btn {
+    display: block;
     width: 100%;
     min-height: 49px;
     padding: 13px 18px;
@@ -237,7 +249,7 @@ body {
     text-decoration: underline;
 }
 
-/* Tablet */
+/* Tampilan tablet */
 @media (max-width: 850px) {
     body {
         padding: 20px;
@@ -281,7 +293,7 @@ body {
     }
 }
 
-/* HP */
+/* Tampilan HP */
 @media (max-width: 520px) {
     body {
         display: block;
