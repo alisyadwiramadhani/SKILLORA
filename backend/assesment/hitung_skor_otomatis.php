@@ -31,6 +31,43 @@ if (!$assessment) {
 }
 
 $id_assessment = (int) $assessment["ID_Assessment"];
+// Pastikan assessment memiliki tepat 8 pertanyaan
+$stmt = $conn->prepare(
+    "SELECT COUNT(*)
+     FROM T_Assessment_Question
+     WHERE ID_Assessment = :id_assessment"
+);
+
+$stmt->execute([
+    ":id_assessment" => $id_assessment
+]);
+
+$total_pertanyaan = (int) $stmt->fetchColumn();
+
+// Hitung jawaban yang sudah tersimpan
+$stmt = $conn->prepare(
+    "SELECT
+        COUNT(*) AS total_jawaban,
+        COUNT(DISTINCT qo.ID_Assessment_Question) AS pertanyaan_dijawab
+     FROM T_Assessment_Answer a
+     INNER JOIN T_Question_Option qo
+        ON a.ID_Option = qo.ID_Option
+     WHERE a.ID_Assessment = :id_assessment"
+);
+
+$stmt->execute([
+    ":id_assessment" => $id_assessment
+]);
+
+$validasi = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (
+    $total_pertanyaan !== 8 ||
+    (int) $validasi["total_jawaban"] !== 8 ||
+    (int) $validasi["pertanyaan_dijawab"] !== 8
+) {
+    exit("Assessment harus memiliki 8 pertanyaan dan semua harus dijawab.");
+}
 
 // Hitung skor berdasarkan jawaban yang tersimpan
 $sql = "SELECT
@@ -114,8 +151,24 @@ try {
         ];
     }
 
-    // Semua proses berhasil, simpan perubahan
-    $conn->commit();
+    // Ubah status assessment menjadi Completed
+$update_status = $conn->prepare(
+    "UPDATE T_Assessment
+     SET Status = 'Completed'
+     WHERE ID_Assessment = :id_assessment
+       AND Status = 'In Progress'"
+);
+
+$update_status->execute([
+    ":id_assessment" => $id_assessment
+]);
+
+if ($update_status->rowCount() !== 1) {
+    throw new Exception("Gagal memperbarui status assessment.");
+}
+
+// Simpan seluruh perubahan
+$conn->commit();
 
 } catch (Throwable $e) {
     if ($conn->inTransaction()) {
