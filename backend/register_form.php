@@ -148,14 +148,6 @@
             </p>
         </section>
     </main>
-            <p class="bottom-text">
-                Sudah punya akun?
-                <a href="login_form.php">
-                    <strong>Masuk di sini</strong>
-                </a>
-            </p>
-        </section>
-    </main>
 </body>
 </html>
 
