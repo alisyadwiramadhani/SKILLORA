@@ -4,106 +4,131 @@ session_start();
 
 require_once __DIR__ . "/../../config/database.php";
 
-// 1. Pastikan user sudah login
+// 1. Validasi login
 if (!isset($_SESSION["ID_User"])) {
     header("Location: ../login_form.php");
     exit;
 }
 
-// 2. Pastikan form dikirim menggunakan POST
+$id_user = (int) $_SESSION["ID_User"];
+
+// 2. Validasi metode request
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     header("Location: kerjakan.php");
     exit;
 }
 
-$id_user = (int) $_SESSION["ID_User"];
+// 3. Validasi session assessment
+if (!isset($_SESSION["ID_Assessment"])) {
+    exit("Session assessment tidak ditemukan. Silakan mulai assessment kembali.");
+}
 
-// 3. Pastikan jawaban tersedia
+$id_assessment = (int) $_SESSION["ID_Assessment"];
+
+if ($id_assessment <= 0) {
+    exit("ID Assessment tidak valid.");
+}
+
+// 4. Validasi data jawaban
 if (
     !isset($_POST["jawaban"]) ||
-    !is_array($_POST["jawaban"]) ||
-    empty($_POST["jawaban"])
+    !is_array($_POST["jawaban"])
 ) {
-    exit("Silakan pilih jawaban terlebih dahulu.");
+    exit("Data jawaban tidak ditemukan.");
 }
 
 $jawaban = $_POST["jawaban"];
 
 try {
-    // 4. Ambil assessment aktif milik user
-    $sql = "SELECT ID_Assessment
-            FROM T_Assessment
-            WHERE ID_User = :id_user
-              AND Status = 'In Progress'
-            ORDER BY ID_Assessment DESC
-            LIMIT 1";
 
-    $stmt = $conn->prepare($sql);
+    // 5. Mulai transaksi
+    $conn->beginTransaction();
+
+    // 6. Pastikan assessment milik user dan masih berjalan
+    $stmt = $conn->prepare("
+        SELECT ID_Assessment
+        FROM T_Assessment
+        WHERE ID_Assessment = :id_assessment
+          AND ID_User = :id_user
+          AND Status = 'In Progress'
+        LIMIT 1
+        FOR UPDATE
+    ");
+
     $stmt->execute([
+        ":id_assessment" => $id_assessment,
         ":id_user" => $id_user
     ]);
 
-    $assessment = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if (!$assessment) {
-        exit("Assessment aktif tidak ditemukan. Silakan mulai kembali.");
-    }
-
-    $id_assessment = (int) $assessment["ID_Assessment"];
-
-    // 5. Hitung jumlah pertanyaan assessment
-    $stmt_total = $conn->prepare(
-        "SELECT COUNT(*)
-         FROM T_Assessment_Question
-         WHERE ID_Assessment = :id_assessment"
-    );
-
-    $stmt_total->execute([
-        ":id_assessment" => $id_assessment
-    ]);
-
-    $total_pertanyaan = (int) $stmt_total->fetchColumn();
-
-    // Pastikan semua pertanyaan sudah dijawab
-    if (count($jawaban) !== $total_pertanyaan) {
-        exit(
-            "Jumlah jawaban belum sesuai dengan jumlah pertanyaan. "
-            . "Silakan jawab semua pertanyaan."
+    if (!$stmt->fetch(PDO::FETCH_ASSOC)) {
+        throw new Exception(
+            "Assessment tidak ditemukan atau sudah selesai."
         );
     }
 
-    // 6. Validasi pertanyaan
-    $cek_pertanyaan = $conn->prepare(
-        "SELECT ID_Assessment_Question
-         FROM T_Assessment_Question
-         WHERE ID_Assessment_Question = :id_pertanyaan
-           AND ID_Assessment = :id_assessment"
+    // 7. Ambil daftar pertanyaan assessment
+    $stmt = $conn->prepare("
+        SELECT ID_Assessment_Question
+        FROM T_Assessment_Question
+        WHERE ID_Assessment = :id_assessment
+        ORDER BY Question_Order ASC
+    ");
+
+    $stmt->execute([
+        ":id_assessment" => $id_assessment
+    ]);
+
+    $daftar_id = array_map(
+        "intval",
+        $stmt->fetchAll(PDO::FETCH_COLUMN)
     );
 
-    // 7. Validasi pilihan jawaban
-    $cek_opsi = $conn->prepare(
-        "SELECT o.ID_Option
-         FROM T_Question_Option o
-         INNER JOIN T_Assessment_Question q
+    // 8. Pastikan jumlah pertanyaan tepat 8
+    if (count($daftar_id) !== 8) {
+        throw new Exception(
+            "Assessment harus memiliki tepat 8 pertanyaan."
+        );
+    }
+
+    // 9. Pastikan jumlah jawaban tepat 8
+    if (count($jawaban) !== 8) {
+        throw new Exception(
+            "Semua 8 pertanyaan wajib dijawab."
+        );
+    }
+
+    // 10. Validasi pilihan jawaban
+    $cek_opsi = $conn->prepare("
+        SELECT o.ID_Option
+        FROM T_Question_Option o
+        INNER JOIN T_Assessment_Question q
             ON q.ID_Assessment_Question = o.ID_Assessment_Question
-         WHERE o.ID_Option = :id_option
-           AND q.ID_Assessment_Question = :id_pertanyaan
-           AND q.ID_Assessment = :id_assessment"
-    );
+        WHERE o.ID_Option = :id_option
+          AND q.ID_Assessment_Question = :id_pertanyaan
+          AND q.ID_Assessment = :id_assessment
+        LIMIT 1
+    ");
 
-    // 8. Query penyimpanan jawaban
-    $simpan = $conn->prepare(
-        "INSERT INTO T_Assessment_Answer
-            (ID_Assessment, ID_Assessment_Question, ID_Option, Answered_at)
-         VALUES
-            (:id_assessment, :id_pertanyaan, :id_option, NOW())
-         ON DUPLICATE KEY UPDATE
+    // 11. Query simpan jawaban
+    $simpan = $conn->prepare("
+        INSERT INTO T_Assessment_Answer (
+            ID_Assessment,
+            ID_Assessment_Question,
+            ID_Option,
+            Answered_at
+        )
+        VALUES (
+            :id_assessment,
+            :id_pertanyaan,
+            :id_option,
+            NOW()
+        )
+        ON DUPLICATE KEY UPDATE
             ID_Option = VALUES(ID_Option),
-            Answered_at = NOW()"
-    );
+            Answered_at = NOW()
+    ");
 
-    // 9. Mulai transaksi
-    $conn->beginTransaction();
+    $id_terjawab = [];
 
     foreach ($jawaban as $id_pertanyaan => $id_option) {
 
@@ -117,7 +142,6 @@ try {
             FILTER_VALIDATE_INT
         );
 
-        // Validasi ID
         if (
             $id_pertanyaan === false ||
             $id_pertanyaan === null ||
@@ -126,20 +150,19 @@ try {
             $id_option === null ||
             $id_option <= 0
         ) {
-            throw new Exception("Data jawaban tidak valid.");
+            throw new Exception(
+                "ID pertanyaan atau pilihan jawaban tidak valid."
+            );
         }
 
-        // Periksa kepemilikan pertanyaan
-        $cek_pertanyaan->execute([
-            ":id_pertanyaan" => $id_pertanyaan,
-            ":id_assessment" => $id_assessment
-        ]);
-
-        if (!$cek_pertanyaan->fetch(PDO::FETCH_ASSOC)) {
-            throw new Exception("Pertanyaan tidak valid.");
+        // Pastikan pertanyaan termasuk assessment
+        if (!in_array($id_pertanyaan, $daftar_id, true)) {
+            throw new Exception(
+                "Pertanyaan tidak sesuai dengan assessment."
+            );
         }
 
-        // Periksa apakah pilihan sesuai dengan pertanyaan
+        // Pastikan opsi milik pertanyaan tersebut
         $cek_opsi->execute([
             ":id_option" => $id_option,
             ":id_pertanyaan" => $id_pertanyaan,
@@ -147,7 +170,9 @@ try {
         ]);
 
         if (!$cek_opsi->fetch(PDO::FETCH_ASSOC)) {
-            throw new Exception("Pilihan jawaban tidak valid.");
+            throw new Exception(
+                "Pilihan jawaban tidak sesuai dengan pertanyaan."
+            );
         }
 
         // Simpan jawaban
@@ -156,9 +181,45 @@ try {
             ":id_pertanyaan" => $id_pertanyaan,
             ":id_option" => $id_option
         ]);
+
+        $id_terjawab[] = $id_pertanyaan;
     }
 
-    // 10. Simpan transaksi
+    // 12. Pastikan seluruh pertanyaan sudah terjawab
+    sort($daftar_id);
+    sort($id_terjawab);
+
+    if ($daftar_id !== $id_terjawab) {
+        throw new Exception(
+            "Jawaban belum mencakup seluruh pertanyaan."
+        );
+    }
+
+    // 13. Pastikan tepat 8 jawaban unik tersimpan
+    $stmt = $conn->prepare("
+        SELECT
+            COUNT(*) AS total,
+            COUNT(DISTINCT ID_Assessment_Question) AS total_unik
+        FROM T_Assessment_Answer
+        WHERE ID_Assessment = :id_assessment
+    ");
+
+    $stmt->execute([
+        ":id_assessment" => $id_assessment
+    ]);
+
+    $hasil = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (
+        (int) $hasil["total"] !== 8 ||
+        (int) $hasil["total_unik"] !== 8
+    ) {
+        throw new Exception(
+            "Jumlah jawaban tersimpan tidak sesuai."
+        );
+    }
+
+    // 14. Commit transaksi
     $conn->commit();
 
     $_SESSION["ID_Assessment"] = $id_assessment;
@@ -170,22 +231,26 @@ try {
     }
 
     error_log(
-        "Simpan jawaban Skillora gagal: " . $e->getMessage()
+        "Simpan jawaban Skillora: " . $e->getMessage()
     );
 
     http_response_code(500);
 
     exit(
-        "Gagal menyimpan jawaban. Silakan periksa kembali database."
+        "Gagal menyimpan jawaban assessment. "
+        . "Silakan periksa kembali database atau log PHP."
     );
 }
 ?>
 
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Jawaban Berhasil Disimpan - Skillora</title>
 
     <style>
@@ -257,24 +322,35 @@ try {
 </head>
 
 <body>
+
     <main class="card">
+
         <div class="icon">✓</div>
 
         <h1>Jawaban Berhasil Disimpan!</h1>
 
         <p>
-            Jawaban assessment kamu sudah tersimpan.
-            Selanjutnya, kamu bisa melanjutkan ke proses
-            perhitungan skor untuk melihat hasil assessment.
+            Seluruh 8 jawaban assessment kamu berhasil disimpan.
+            Selanjutnya sistem akan menghitung skor keterampilan
+            dan menampilkan rekomendasi karier yang sesuai.
         </p>
 
-        <a class="button" href="hitung_skor_otomatis.php">
+        <a
+            class="button"
+            href="hitung_skor_otomatis.php"
+        >
             Lihat Hasil Assessment
         </a>
 
-        <a class="button secondary" href="../../index.php">
+        <a
+            class="button secondary"
+            href="../../index.php"
+        >
             Kembali ke Dashboard
         </a>
+
     </main>
+
 </body>
+
 </html>

@@ -1,10 +1,9 @@
-
 <?php
 session_start();
 
 require_once __DIR__ . "/../../config/database.php";
 
-// Pastikan pengguna sudah login
+// 1. Pastikan pengguna sudah login
 if (!isset($_SESSION["ID_User"])) {
     header("Location: ../login_form.php");
     exit;
@@ -12,18 +11,15 @@ if (!isset($_SESSION["ID_User"])) {
 
 $id_user = (int) $_SESSION["ID_User"];
 
-// Daftar 8 pertanyaan yang digunakan
+// 2. Daftar 8 pertanyaan assessment
 $daftarSoal = [1, 4, 6, 8, 10, 12, 13, 14];
 
-// Bobot skill:
+// 3. Pemetaan bobot skill
 // 1 = UI/UX Design
 // 2 = Kreativitas
 // 3 = Komunikasi
 // 4 = Problem Solving
 // 5 = Analytical Thinking
-//
-// Bobot utama = 5
-// Bobot pendukung = 2
 
 $bobotSkill = [
     1 => [
@@ -32,49 +28,42 @@ $bobotSkill = [
         'C' => [3 => 5, 1 => 2],
         'D' => [5 => 5, 4 => 2]
     ],
-
     4 => [
         'A' => [5 => 5, 4 => 2],
         'B' => [2 => 5, 4 => 2],
         'C' => [3 => 5, 5 => 2],
         'D' => [5 => 5, 4 => 2]
     ],
-
     6 => [
         'A' => [1 => 5, 5 => 2],
         'B' => [2 => 5, 4 => 2],
         'C' => [3 => 5, 4 => 2],
         'D' => [5 => 5, 4 => 2]
     ],
-
     8 => [
         'A' => [1 => 5, 3 => 2],
         'B' => [2 => 5, 4 => 2],
         'C' => [3 => 5, 2 => 2],
         'D' => [5 => 5, 4 => 2]
     ],
-
     10 => [
         'A' => [4 => 5, 5 => 2],
         'B' => [2 => 5, 4 => 2],
         'C' => [3 => 5, 4 => 2],
         'D' => [5 => 5, 4 => 2]
     ],
-
     12 => [
         'A' => [1 => 5, 3 => 2],
         'B' => [2 => 5, 1 => 2],
         'C' => [3 => 5, 1 => 2],
         'D' => [5 => 5, 1 => 2]
     ],
-
     13 => [
         'A' => [1 => 5, 5 => 2],
         'B' => [2 => 5, 1 => 2],
         'C' => [3 => 5, 1 => 2],
         'D' => [5 => 5, 4 => 2]
     ],
-
     14 => [
         'A' => [1 => 5, 2 => 2],
         'B' => [2 => 5, 3 => 2],
@@ -86,29 +75,38 @@ $bobotSkill = [
 try {
     $conn->beginTransaction();
 
-    // Ambil tepat 8 pertanyaan pilihan
-    $placeholder = implode(',', array_fill(0, count($daftarSoal), '?'));
+    // 4. Ambil tepat 8 pertanyaan yang sudah ditentukan
+    $placeholder = implode(
+        ",",
+        array_fill(0, count($daftarSoal), "?")
+    );
 
     $sql = "
-        SELECT ID_Bank_Pertanyaan, Question_Text, Question_Order
+        SELECT
+            ID_Bank_Pertanyaan,
+            Question_Text,
+            Question_Order
         FROM T_Bank_Pertanyaan
         WHERE Is_Active = 1
-        AND Question_Order IN ($placeholder)
+          AND Question_Order IN ($placeholder)
         ORDER BY FIELD(Question_Order, $placeholder)
     ";
 
     $stmt = $conn->prepare($sql);
-    $stmt->execute(array_merge($daftarSoal, $daftarSoal));
+
+    $stmt->execute(
+        array_merge($daftarSoal, $daftarSoal)
+    );
 
     $pertanyaan = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     if (count($pertanyaan) !== 8) {
         throw new Exception(
-            "Delapan pertanyaan pilihan belum tersedia atau belum aktif."
+            "Delapan pertanyaan assessment belum tersedia atau belum aktif."
         );
     }
 
-    // Buat assessment baru
+    // 5. Buat assessment baru
     $stmt = $conn->prepare(
         "INSERT INTO T_Assessment
         (ID_User, Tanggal, Status, Started_at)
@@ -121,35 +119,36 @@ try {
 
     $id_assessment = (int) $conn->lastInsertId();
 
-    // Query penyimpanan pertanyaan
+    // 6. Query penyimpanan pertanyaan
     $stmt_question = $conn->prepare(
         "INSERT INTO T_Assessment_Question
         (ID_Assessment, Question_Text, Question_Order, Generated_By_AI)
         VALUES (:id_assessment, :question_text, :question_order, 0)"
     );
 
-    // Query mengambil pilihan jawaban
+    // 7. Query mengambil pilihan dari bank pertanyaan
     $stmt_option_source = $conn->prepare(
         "SELECT Option_Label, Option_Text
-        FROM T_Bank_Pilihan
-        WHERE ID_Bank_Pertanyaan = :id_bank
-        ORDER BY Option_Label"
+         FROM T_Bank_Pilihan
+         WHERE ID_Bank_Pertanyaan = :id_bank
+         ORDER BY Option_Label"
     );
 
-    // Query menyimpan pilihan jawaban
+    // 8. Query menyimpan pilihan assessment
     $stmt_option_target = $conn->prepare(
         "INSERT INTO T_Question_Option
         (ID_Assessment_Question, Option_Label, Option_Text)
         VALUES (:id_question, :label, :option_text)"
     );
 
-    // Query menyimpan bobot skill
+    // 9. Query menyimpan bobot skill
     $stmt_bobot = $conn->prepare(
         "INSERT INTO T_Option_Skill_Weight
         (ID_Option, ID_Skill, Weight)
         VALUES (:id_option, :id_skill, :weight)"
     );
 
+    // 10. Proses setiap pertanyaan
     foreach ($pertanyaan as $index => $p) {
 
         $id_bank = (int) $p["ID_Bank_Pertanyaan"];
@@ -157,12 +156,12 @@ try {
 
         if (!isset($bobotSkill[$nomor_pertanyaan])) {
             throw new Exception(
-                "Bobot tidak ditemukan untuk pertanyaan "
+                "Bobot skill tidak ditemukan untuk pertanyaan "
                 . $nomor_pertanyaan
             );
         }
 
-        // Simpan pertanyaan ke assessment
+        // Simpan pertanyaan
         $stmt_question->execute([
             ":id_assessment" => $id_assessment,
             ":question_text" => $p["Question_Text"],
@@ -171,25 +170,30 @@ try {
 
         $id_question = (int) $conn->lastInsertId();
 
-        // Ambil pilihan jawaban dari bank
+        // Ambil pilihan jawaban
         $stmt_option_source->execute([
             ":id_bank" => $id_bank
         ]);
 
-        $options = $stmt_option_source->fetchAll(PDO::FETCH_ASSOC);
+        $options = $stmt_option_source->fetchAll(
+            PDO::FETCH_ASSOC
+        );
 
         if (count($options) !== 4) {
             throw new Exception(
                 "Pertanyaan ID " . $id_bank
-                . " harus memiliki 4 pilihan jawaban."
+                . " harus memiliki tepat 4 pilihan jawaban."
             );
         }
 
+        // Simpan seluruh pilihan dan bobotnya
         foreach ($options as $option) {
 
             $label = $option["Option_Label"];
 
-            if (!isset($bobotSkill[$nomor_pertanyaan][$label])) {
+            if (!isset(
+                $bobotSkill[$nomor_pertanyaan][$label]
+            )) {
                 throw new Exception(
                     "Bobot pilihan " . $label
                     . " tidak ditemukan pada pertanyaan "
@@ -220,12 +224,13 @@ try {
         }
     }
 
-    // Simpan seluruh perubahan
+    // 11. Simpan seluruh perubahan
     $conn->commit();
 
+    // 12. Simpan ID assessment ke session
     $_SESSION["ID_Assessment"] = $id_assessment;
 
-    // Arahkan ke halaman pengerjaan
+    // 13. Arahkan pengguna ke halaman pengerjaan
     header("Location: kerjakan.php");
     exit;
 
@@ -243,6 +248,7 @@ try {
     http_response_code(500);
 
     exit(
-        "Assessment gagal dibuat. Silakan periksa error log PHP."
+        "Assessment gagal dibuat. "
+        . "Silakan periksa error log PHP."
     );
 }

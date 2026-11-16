@@ -4,7 +4,7 @@ session_start();
 
 require_once __DIR__ . "/../../config/database.php";
 
-// Pastikan pengguna sudah login
+// 1. Pastikan pengguna sudah login
 if (!isset($_SESSION["ID_User"])) {
     header("Location: ../login_form.php");
     exit;
@@ -12,73 +12,142 @@ if (!isset($_SESSION["ID_User"])) {
 
 $id_user = (int) $_SESSION["ID_User"];
 
+// 2. Pastikan ID Assessment tersedia di session
+if (!isset($_SESSION["ID_Assessment"])) {
+    exit("Session assessment tidak ditemukan. Silakan mulai assessment dari dashboard.");
+}
+
+$id_assessment = (int) $_SESSION["ID_Assessment"];
+
+if ($id_assessment <= 0) {
+    exit("ID Assessment tidak valid.");
+}
+
 try {
-    // Cari assessment aktif milik pengguna
-    $sql = "SELECT ID_Assessment
-            FROM T_Assessment
-            WHERE ID_User = :id_user
-              AND Status = 'In Progress'
-            ORDER BY ID_Assessment DESC
-            LIMIT 1";
+
+    // 3. Validasi kepemilikan dan status assessment
+    $sql = "
+        SELECT ID_Assessment
+        FROM T_Assessment
+        WHERE ID_Assessment = :id_assessment
+          AND ID_User = :id_user
+          AND Status = 'In Progress'
+        LIMIT 1
+    ";
 
     $stmt = $conn->prepare($sql);
-    $stmt->execute([":id_user" => $id_user]);
+    $stmt->execute([
+        ":id_assessment" => $id_assessment,
+        ":id_user" => $id_user
+    ]);
+
     $assessment = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$assessment) {
         exit(
-            "Assessment aktif tidak ditemukan. "
-            . "Silakan klik Mulai Assessment dari dashboard."
+            "Assessment tidak ditemukan atau sudah selesai. "
+            . "Silakan mulai assessment baru dari dashboard."
         );
     }
 
-    $id_assessment = (int) $assessment["ID_Assessment"];
-    $_SESSION["ID_Assessment"] = $id_assessment;
-
-    // Ambil pertanyaan assessment
-    $sql = "SELECT ID_Assessment_Question, Question_Text, Question_Order
-            FROM T_Assessment_Question
-            WHERE ID_Assessment = :id_assessment
-            ORDER BY Question_Order ASC";
+    // 4. Ambil tepat pertanyaan milik assessment ini
+    $sql = "
+        SELECT
+            ID_Assessment_Question,
+            Question_Text,
+            Question_Order
+        FROM T_Assessment_Question
+        WHERE ID_Assessment = :id_assessment
+        ORDER BY Question_Order ASC
+    ";
 
     $stmt = $conn->prepare($sql);
-    $stmt->execute([":id_assessment" => $id_assessment]);
+    $stmt->execute([
+        ":id_assessment" => $id_assessment
+    ]);
+
     $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Ambil pilihan jawaban untuk setiap pertanyaan
-    $stmt_opsi = $conn->prepare(
-        "SELECT ID_Option, Option_Label, Option_Text
-         FROM T_Question_Option
-         WHERE ID_Assessment_Question = :id_question
-         ORDER BY Option_Label ASC"
-    );
+    // 5. Pastikan jumlah pertanyaan tepat 8
+    if (count($questions) !== 8) {
+        throw new Exception(
+            "Jumlah pertanyaan tidak sesuai. Seharusnya terdapat tepat 8 pertanyaan."
+        );
+    }
+
+    // 6. Ambil pilihan jawaban setiap pertanyaan
+    $stmt_opsi = $conn->prepare("
+        SELECT
+            ID_Option,
+            Option_Label,
+            Option_Text
+        FROM T_Question_Option
+        WHERE ID_Assessment_Question = :id_question
+        ORDER BY Option_Label ASC
+    ");
 
     $daftar_pertanyaan = [];
 
     foreach ($questions as $question) {
+
         $id_question = (int) $question["ID_Assessment_Question"];
 
-        $stmt_opsi->execute([":id_question" => $id_question]);
+        $stmt_opsi->execute([
+            ":id_question" => $id_question
+        ]);
 
-        $question["options"] = $stmt_opsi->fetchAll(PDO::FETCH_ASSOC);
+        $options = $stmt_opsi->fetchAll(PDO::FETCH_ASSOC);
+
+        // Pastikan setiap pertanyaan memiliki 4 pilihan
+        if (count($options) !== 4) {
+            throw new Exception(
+                "Pertanyaan nomor "
+                . $question["Question_Order"]
+                . " tidak memiliki tepat 4 pilihan jawaban."
+            );
+        }
+
+        $question["options"] = $options;
         $daftar_pertanyaan[] = $question;
     }
 
-} catch (PDOException $e) {
-    error_log("Kerjakan assessment Skillora: " . $e->getMessage());
+} catch (Throwable $e) {
+
+    error_log(
+        "Kerjakan assessment Skillora: " . $e->getMessage()
+    );
+
     http_response_code(500);
-    exit("Terjadi kesalahan saat memuat assessment. Periksa log PHP.");
+
+    exit(
+        "Terjadi kesalahan saat memuat assessment. "
+        . "Silakan periksa log PHP."
+    );
 }
 
+// 7. Fungsi keamanan output HTML
 function h($value) {
-    return htmlspecialchars((string) $value, ENT_QUOTES, "UTF-8");
+    return htmlspecialchars(
+        (string) $value,
+        ENT_QUOTES,
+        "UTF-8"
+    );
 }
+
+$total_pertanyaan = count($daftar_pertanyaan);
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
     <title>Assessment | Skillora</title>
 
     <style>
@@ -103,7 +172,7 @@ function h($value) {
         header a {
             color: white;
             text-decoration: none;
-            font-size: 26px;
+            font-size: 20px;
             font-weight: 800;
         }
 
@@ -175,7 +244,6 @@ function h($value) {
             transition: width .25s ease;
         }
 
-        /* Hanya slide aktif yang ditampilkan */
         .question-card {
             display: none;
         }
@@ -190,6 +258,7 @@ function h($value) {
                 opacity: .5;
                 transform: translateX(18px);
             }
+
             to {
                 opacity: 1;
                 transform: translateX(0);
@@ -252,61 +321,51 @@ function h($value) {
             margin-top: 24px;
         }
 
-        .nav-button,
-        .submit-button {
-            border: 0;
+        button {
+            border: none;
             border-radius: 11px;
-            padding: 13px 22px;
+            padding: 13px 24px;
             font-size: 15px;
             font-weight: 700;
             cursor: pointer;
-            transition: background .2s, opacity .2s;
+            transition: .2s;
         }
 
-        .previous-button {
-            background: #e7efeb;
-            color: #36564c;
-        }
-
-        .previous-button:hover:not(:disabled) {
-            background: #d9e7e0;
-        }
-
-        .next-button,
-        .submit-button {
-            background: #176b5b;
-            color: #fff;
-        }
-
-        .next-button:hover,
-        .submit-button:hover {
-            background: #105447;
-        }
-
-        .nav-button:disabled {
-            opacity: .4;
+        button:disabled {
+            opacity: .45;
             cursor: not-allowed;
         }
 
-        .submit-button {
-            display: none;
+        .btn-prev {
+            background: #e8f0ec;
+            color: #176b5b;
         }
 
-        .message {
+        .btn-next,
+        .btn-submit {
+            background: #176b5b;
+            color: white;
+        }
+
+        button:not(:disabled):hover {
+            transform: translateY(-2px);
+            opacity: .9;
+        }
+
+        .warning {
             display: none;
-            color: #a13d32;
-            background: #fff1ef;
-            border-radius: 10px;
-            padding: 10px 13px;
             margin-top: 16px;
+            padding: 12px 15px;
+            background: #fff2e7;
+            color: #a04a17;
+            border-radius: 10px;
             font-size: 14px;
         }
 
-        footer {
-            padding: 22px;
-            text-align: center;
-            color: #65756f;
+        .question-hint {
+            margin-top: 18px;
             font-size: 13px;
+            color: #718079;
         }
 
         @media (max-width: 600px) {
@@ -314,11 +373,12 @@ function h($value) {
                 margin: 20px auto;
             }
 
-            .intro,
-            .question-card,
-            .empty-card {
-                border-radius: 16px;
-                padding: 20px;
+            .navigation {
+                flex-wrap: wrap;
+            }
+
+            .navigation button {
+                flex: 1;
             }
 
             h1 {
@@ -327,297 +387,259 @@ function h($value) {
 
             .option {
                 padding: 15px;
-                gap: 11px;
-            }
-
-            .navigation {
-                gap: 8px;
-            }
-
-            .nav-button,
-            .submit-button {
-                padding: 12px 14px;
-                font-size: 13px;
-            }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            *,
-            *::before,
-            *::after {
-                animation: none !important;
-                transition: none !important;
             }
         }
     </style>
 </head>
 
 <body>
-<header class="assessment-header">
-    <a href="../../index.php" class="brand">
-        🌿 Skillora
-    </a>
 
-    <a href="../../index.php" class="back-dashboard">
-        ← Kembali ke Dashboard
-    </a>
+<header>
+    <a href="../../index.php">Skillora</a>
 </header>
 
 <main>
+
     <section class="intro">
-        <span class="tag">ASSESSMENT KETERAMPILAN</span>
-        <h1>Kenali Potensimu</h1>
+
+        <span class="tag">SKILL ASSESSMENT</span>
+
+        <h1>Kenali Potensi Dirimu</h1>
 
         <p class="muted">
-            Pilih satu jawaban yang paling menggambarkan dirimu.
-            Gunakan tombol Sebelumnya dan Selanjutnya untuk berpindah
-            pertanyaan.
+            Jawablah seluruh pertanyaan berikut sesuai dengan
+            kemampuan dan pengalaman dirimu. Pilih satu jawaban
+            yang paling menggambarkan dirimu.
         </p>
 
         <p>
             <strong>Total pertanyaan:</strong>
-            <?= count($daftar_pertanyaan) ?>
+            <?= $total_pertanyaan; ?> pertanyaan
         </p>
+
     </section>
 
-    <?php if (empty($daftar_pertanyaan)): ?>
+    <div class="progress-top">
+        <span id="progress-text">Pertanyaan 1 dari 8</span>
+        <span id="progress-percent">0%</span>
+    </div>
 
-        <section class="empty-card">
-            <h2>Pertanyaan belum tersedia</h2>
-            <p class="muted">
-                Assessment ini belum memiliki pertanyaan.
-                Silakan kembali ke dashboard.
-            </p>
-            <a href="../../index.php">Kembali ke Dashboard</a>
-        </section>
+    <div class="progress-track">
+        <div class="progress-fill" id="progress-fill"></div>
+    </div>
 
-    <?php else: ?>
+    <form
+        action="simpan_jawaban.php"
+        method="POST"
+        id="assessment-form"
+    >
 
-        <div class="progress-top">
-            <span id="progress-label">
-                Pertanyaan 1 dari <?= count($daftar_pertanyaan) ?>
-            </span>
-            <span id="progress-percent">0% selesai</span>
+        <?php foreach ($daftar_pertanyaan as $index => $question): ?>
+
+            <section
+                class="question-card <?= $index === 0 ? 'active' : ''; ?>"
+                data-index="<?= $index; ?>"
+            >
+
+                <p class="question-number">
+                    PERTANYAAN <?= $index + 1; ?> DARI <?= $total_pertanyaan; ?>
+                </p>
+
+                <h2>
+                    <?= h($question["Question_Text"]); ?>
+                </h2>
+
+                <?php foreach ($question["options"] as $option): ?>
+
+                    <label class="option">
+
+                        <input
+                            type="radio"
+                            name="jawaban[<?= (int) $question["ID_Assessment_Question"]; ?>]"
+                            value="<?= (int) $option["ID_Option"]; ?>"
+                        >
+
+                        <span>
+                            <strong>
+                                <?= h($option["Option_Label"]); ?>.
+                            </strong>
+
+                            <?= h($option["Option_Text"]); ?>
+                        </span>
+
+                    </label>
+
+                <?php endforeach; ?>
+
+            </section>
+
+        <?php endforeach; ?>
+
+        <div class="warning" id="warning-message">
+            Silakan pilih salah satu jawaban sebelum melanjutkan.
         </div>
 
-        <div class="progress-track" aria-label="Progres assessment">
-            <div class="progress-fill" id="progress-fill"></div>
+        <div class="navigation">
+
+            <button
+                type="button"
+                class="btn-prev"
+                id="prev-button"
+                disabled
+            >
+                Sebelumnya
+            </button>
+
+            <button
+                type="button"
+                class="btn-next"
+                id="next-button"
+            >
+                Selanjutnya
+            </button>
+
+            <button
+                type="submit"
+                class="btn-submit"
+                id="submit-button"
+                style="display: none;"
+            >
+                Kirim Jawaban
+            </button>
+
         </div>
 
-        <form id="assessment-form" action="simpan_jawaban.php" method="POST">
+        <p class="question-hint">
+            Pastikan semua pertanyaan telah dijawab sebelum
+            mengirimkan assessment.
+        </p>
 
-            <?php foreach ($daftar_pertanyaan as $index => $question): ?>
+    </form>
 
-                <section
-                    class="question-card<?= $index === 0 ? ' active' : '' ?>"
-                    data-question-index="<?= $index ?>"
-                    aria-hidden="<?= $index === 0 ? 'false' : 'true' ?>"
-                >
-                    <p class="question-number">
-                        PERTANYAAN <?= $index + 1 ?>
-                    </p>
-
-                    <h2><?= h($question["Question_Text"]) ?></h2>
-
-                    <?php if (empty($question["options"])): ?>
-
-                        <p class="muted">
-                            Pilihan jawaban belum tersedia untuk pertanyaan ini.
-                        </p>
-
-                    <?php else: ?>
-
-                        <?php foreach ($question["options"] as $option): ?>
-
-                            <label class="option">
-                                <input
-                                    type="radio"
-                                    name="jawaban[<?= (int) $question["ID_Assessment_Question"] ?>]"
-                                    value="<?= (int) $option["ID_Option"] ?>"
-                                >
-
-                                <span>
-                                    <strong><?= h($option["Option_Label"]) ?>.</strong>
-                                    <?= h($option["Option_Text"]) ?>
-                                </span>
-                            </label>
-
-                        <?php endforeach; ?>
-
-                    <?php endif; ?>
-                </section>
-
-            <?php endforeach; ?>
-
-            <p class="message" id="validation-message" role="alert">
-                Pilih satu jawaban sebelum melanjutkan.
-            </p>
-
-            <div class="navigation">
-                <button
-                    type="button"
-                    class="nav-button previous-button"
-                    id="previous-button"
-                    disabled
-                >
-                    ← Sebelumnya
-                </button>
-
-                <button
-                    type="button"
-                    class="nav-button next-button"
-                    id="next-button"
-                >
-                    Selanjutnya →
-                </button>
-
-                <button
-                    type="submit"
-                    class="submit-button"
-                    id="submit-button"
-                >
-                    Simpan Jawaban &amp; Lanjutkan
-                </button>
-            </div>
-
-        </form>
-
-    <?php endif; ?>
 </main>
 
-<footer>
-    &copy; <?= date("Y") ?> Skillora — Kenali potensimu, temukan arah kariermu.
-</footer>
-
 <script>
-(() => {
-    const form = document.getElementById("assessment-form");
+document.addEventListener("DOMContentLoaded", function () {
 
-    if (!form) {
-        return;
-    }
-
-    const slides = Array.from(
-        form.querySelectorAll(".question-card[data-question-index]")
-    );
-
-    if (slides.length === 0) {
-        return;
-    }
-
-    const previousButton = document.getElementById("previous-button");
+    const slides = document.querySelectorAll(".question-card");
+    const prevButton = document.getElementById("prev-button");
     const nextButton = document.getElementById("next-button");
     const submitButton = document.getElementById("submit-button");
-    const progressLabel = document.getElementById("progress-label");
-    const progressPercent = document.getElementById("progress-percent");
     const progressFill = document.getElementById("progress-fill");
-    const message = document.getElementById("validation-message");
+    const progressText = document.getElementById("progress-text");
+    const progressPercent = document.getElementById("progress-percent");
+    const warningMessage = document.getElementById("warning-message");
+    const form = document.getElementById("assessment-form");
 
-    let current = 0;
+    const totalQuestions = slides.length;
+    let currentIndex = 0;
 
-    function isAnswered(slide) {
-        return slide.querySelector(
+    // Pastikan jumlah slide sama dengan 8
+    if (totalQuestions !== 8) {
+        alert("Jumlah pertanyaan tidak sesuai. Seharusnya 8 pertanyaan.");
+        return;
+    }
+
+    function isAnswered(index) {
+        return slides[index].querySelector(
             'input[type="radio"]:checked'
         ) !== null;
     }
 
-    function updateProgress() {
-        const answered = slides.filter(isAnswered).length;
-        const percent = Math.round((answered / slides.length) * 100);
+    function updateDisplay() {
 
-        progressLabel.textContent =
-            `Pertanyaan ${current + 1} dari ${slides.length}`;
-
-        progressPercent.textContent = `${percent}% selesai`;
-        progressFill.style.width = `${percent}%`;
-    }
-
-    function showSlide(index) {
-        current = index;
-
-        slides.forEach((slide, i) => {
-            const isActive = i === current;
-
-            slide.classList.toggle("active", isActive);
-            slide.setAttribute(
-                "aria-hidden",
-                isActive ? "false" : "true"
-            );
+        slides.forEach(function (slide, index) {
+            slide.classList.toggle("active", index === currentIndex);
         });
 
-        previousButton.disabled = current === 0;
+        prevButton.disabled = currentIndex === 0;
 
-        nextButton.style.display =
-            current === slides.length - 1 ? "none" : "inline-block";
-
-        submitButton.style.display =
-            current === slides.length - 1 ? "inline-block" : "none";
-
-        message.style.display = "none";
-
-        updateProgress();
-
-        window.scrollTo({
-            top: 0,
-            behavior: "smooth"
-        });
-    }
-
-    function validateCurrentSlide() {
-        if (!isAnswered(slides[current])) {
-            message.textContent =
-                "Pilih satu jawaban sebelum melanjutkan.";
-
-            message.style.display = "block";
-            return false;
+        if (currentIndex === totalQuestions - 1) {
+            nextButton.style.display = "none";
+            submitButton.style.display = "inline-block";
+        } else {
+            nextButton.style.display = "inline-block";
+            submitButton.style.display = "none";
         }
 
-        message.style.display = "none";
-        return true;
+        const progress = ((currentIndex + 1) / totalQuestions) * 100;
+
+        progressFill.style.width = progress + "%";
+        progressText.textContent =
+            "Pertanyaan " + (currentIndex + 1) +
+            " dari " + totalQuestions;
+
+        progressPercent.textContent =
+            Math.round(progress) + "%";
+
+        warningMessage.style.display = "none";
     }
 
-    previousButton.addEventListener("click", () => {
-        if (current > 0) {
-            showSlide(current - 1);
-        }
-    });
+    nextButton.addEventListener("click", function () {
 
-    nextButton.addEventListener("click", () => {
-        if (!validateCurrentSlide()) {
+        if (!isAnswered(currentIndex)) {
+            warningMessage.textContent =
+                "Silakan pilih salah satu jawaban sebelum melanjutkan.";
+
+            warningMessage.style.display = "block";
             return;
         }
 
-        if (current < slides.length - 1) {
-            showSlide(current + 1);
+        if (currentIndex < totalQuestions - 1) {
+            currentIndex++;
+            updateDisplay();
+            window.scrollTo({ top: 0, behavior: "smooth" });
         }
     });
 
-    form.addEventListener("change", (event) => {
-        if (event.target.matches('input[type="radio"]')) {
-            message.style.display = "none";
-            updateProgress();
+    prevButton.addEventListener("click", function () {
+
+        if (currentIndex > 0) {
+            currentIndex--;
+            updateDisplay();
+            window.scrollTo({ top: 0, behavior: "smooth" });
         }
     });
 
-    form.addEventListener("submit", (event) => {
-        const unansweredIndex = slides.findIndex(
-            slide => !isAnswered(slide)
+    form.addEventListener("submit", function (event) {
+
+        for (let i = 0; i < totalQuestions; i++) {
+
+            if (!isAnswered(i)) {
+
+                event.preventDefault();
+
+                currentIndex = i;
+                updateDisplay();
+
+                warningMessage.textContent =
+                    "Pertanyaan nomor " + (i + 1) +
+                    " belum dijawab. Silakan pilih salah satu jawaban.";
+
+                warningMessage.style.display = "block";
+
+                window.scrollTo({ top: 0, behavior: "smooth" });
+
+                return;
+            }
+        }
+
+        const confirmed = confirm(
+            "Apakah kamu yakin ingin mengirim seluruh jawaban assessment?"
         );
 
-        if (unansweredIndex !== -1) {
+        if (!confirmed) {
             event.preventDefault();
-
-            showSlide(unansweredIndex);
-
-            message.textContent =
-                "Pertanyaan ini belum dijawab. Silakan pilih satu jawaban.";
-
-            message.style.display = "block";
+            return;
         }
+
+        submitButton.disabled = true;
+        submitButton.textContent = "Menyimpan...";
     });
 
-    showSlide(0);
-})();
+    updateDisplay();
+
+});
 </script>
 
 </body>

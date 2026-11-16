@@ -10,11 +10,12 @@
     <link rel="stylesheet" href="../assets/css/registrasi.css">
 </head>
 
-
 <body>
     <main class="container">
+
+        <!-- Bagian ilustrasi -->
         <section class="illustration">
-           <a class="brand" href="../landing.php">Skillora</a>
+            <a class="brand" href="../landing.php">Skillora</a>
 
             <div class="illustration-content">
                 <div class="illustration-icon"></div>
@@ -32,6 +33,7 @@
             </small>
         </section>
 
+        <!-- Bagian formulir pendaftaran -->
         <section class="form-panel">
             <h2>Buat Akun</h2>
 
@@ -100,4 +102,3 @@
     </main>
 </body>
 </html>
-
