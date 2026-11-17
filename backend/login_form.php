@@ -19,11 +19,12 @@
             <div class="illustration-content">
                 <div class="illustration-icon"></div>
                 <!-- Maskot Skillora -->
-            <img
-                src="../assets/images/mascot.png"
-                alt="Maskot Skillora"
-                style="display:block; width:240px; max-width:75%; height:auto; margin:-270px auto 20px; transform:translateX(25px);"
-            >
+                <img
+                    src="../assets/images/mascot.png"
+                    alt="Maskot Skillora"
+                    class="mascot-float"
+                    style="display:block; width:240px; max-width:75%; height:auto; margin:-270px auto 20px;"
+                >
                 <h1>Kenali Potensimu,<br>Raih Masa Depanmu</h1>
 
                 <p>
