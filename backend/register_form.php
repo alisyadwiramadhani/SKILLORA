@@ -8,6 +8,23 @@
 
     <link rel="stylesheet" href="../assets/css/global.css">
     <link rel="stylesheet" href="../assets/css/registrasi.css">
+
+    <style>
+        @keyframes skilloraPenguinFloat {
+            0%, 100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-30px);
+            }
+        }
+
+        .mascot-float {
+            animation: skilloraPenguinFloat 2s ease-in-out infinite !important;
+            will-change: transform;
+        }
+    </style>
 </head>
 
 <body>
@@ -19,6 +36,14 @@
 
             <div class="illustration-content">
                 <div class="illustration-icon"></div>
+                 <!-- Maskot Skillora dengan animasi -->
+            <img
+                src="../assets/images/mascot.png"
+                alt="Maskot Skillora"
+                class="mascot-float"
+                style="display:block; width:240px; max-width:75%; height:auto; margin:-130px auto 20px;"
+            >
+
 
                 <h1>Mulai Perjalananmu Bersama Skillora</h1>
 

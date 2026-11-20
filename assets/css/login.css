@@ -384,3 +384,22 @@ body {
         margin-bottom: 22px;
     }
 }
+/* =========================================
+   ANIMASI MASKOT SKILLORA
+   ========================================= */
+
+.mascot-float {
+    position: relative;
+    animation: mascotFloat 2s ease-in-out infinite !important;
+    will-change: transform;
+}
+
+@keyframes mascotFloat {
+    0%, 100% {
+        transform: translate(25px, 0);
+    }
+
+    50% {
+        transform: translate(25px, -20px);
+    }
+}
