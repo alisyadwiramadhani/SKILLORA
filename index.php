@@ -284,7 +284,6 @@ $videos = [
         <a href="index.php" class="active"><span>⌂</span> Beranda</a>
         <a href="backend/assesment/start.php"><span>▣</span> Assessment</a>
         <a href="backend/assesment/rekomendasi_karier.php"><span>◎</span> Rekomendasi Karier</a>
-        <a href="#notifikasi"><span>♧</span> Notifikasi</a>
     </nav>
 
     <form class="search-box"
@@ -397,7 +396,6 @@ $videos = [
         <div class="left-column">
 
             <!-- PROGRESS ASSESSMENT -->
-            <article class="panel progress-panel" id="notifikasi">
 
                 <div class="panel-heading">
                     <div>
