@@ -1,33 +1,32 @@
 
-/* =========================================
-   SKILLORA - PROFESSIONAL DASHBOARD
-   Dashboard Design System
-========================================= */
+/* ==================================================
+   SKILLORA - DASHBOARD FINAL
+   Design: Modern, Clean, Mint & Teal
+   Responsive: Desktop, Tablet, Mobile
+================================================== */
+
+/* 1. GLOBAL */
 
 :root {
-    --primary: #208b83;
-    --primary-dark: #176e69;
-    --primary-light: #e2f5f0;
+    --primary: #208f87;
+    --primary-dark: #08766e;
+    --primary-light: #e4f5ef;
 
-    --mint: #e8f7f2;
-    --mint-soft: #f3faf7;
+    --mint: #e8f7f1;
+    --background: #f5faf8;
 
     --text: #30443f;
-    --muted: #84958e;
+    --muted: #82968d;
 
     --white: #ffffff;
-    --border: #e4eeea;
+    --border: #e1eee8;
 
-    --green: #19ad83;
-    --blue: #1595ac;
+    --green: #18b98b;
+    --blue: #1595ad;
 
-    --shadow:
-        0 5px 20px rgba(31, 87, 73, .045);
-
-    --radius: 18px;
+    --shadow: 0 4px 16px rgba(31, 87, 73, .045);
+    --radius: 16px;
 }
-
-/* RESET */
 
 * {
     box-sizing: border-box;
@@ -40,19 +39,15 @@ html {
 body {
     margin: 0;
     min-height: 100vh;
-    font-family:
-        "Segoe UI",
-        Arial,
-        sans-serif;
-
+    font-family: "Segoe UI", Arial, sans-serif;
     color: var(--text);
-    background: #f6faf8;
+    background: var(--background);
     line-height: 1.6;
 }
 
 a {
-    text-decoration: none;
     color: inherit;
+    text-decoration: none;
 }
 
 button,
@@ -60,9 +55,14 @@ input {
     font: inherit;
 }
 
-/* =========================================
-   NAVBAR
-========================================= */
+.dashboard-container {
+    width: min(100% - 64px, 1450px);
+    margin: 0 auto;
+}
+
+/* ==================================================
+   2. NAVBAR
+================================================== */
 
 .navbar {
     position: sticky;
@@ -75,29 +75,25 @@ input {
 
     min-height: 76px;
     padding: 0 3.2%;
+    gap: 15px;
 
-    background: rgba(255, 255, 255, .97);
+    background: rgba(255, 255, 255, .98);
     border-bottom: 1px solid var(--border);
-
     box-shadow: 0 2px 12px rgba(30, 80, 65, .025);
-
-    gap: 20px;
 }
 
 .brand {
+    flex-shrink: 0;
     color: var(--primary-dark);
-
-    font-size: 22px;
+    font-size: 21px;
     font-weight: 900;
-    letter-spacing: -.8px;
-
-    white-space: nowrap;
+    letter-spacing: -.7px;
 }
 
 .nav-links {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 4px;
 }
 
 .nav-links a {
@@ -105,22 +101,21 @@ input {
     align-items: center;
     gap: 7px;
 
-    padding: 10px 13px;
+    padding: 9px 11px;
 
     color: #586963;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 650;
 
     border-radius: 11px;
-
-    transition: .2s ease;
     white-space: nowrap;
+    transition: .2s ease;
 }
 
 .nav-links a:hover,
 .nav-links a.active {
-    background: var(--primary);
     color: white;
+    background: var(--primary);
 }
 
 .nav-links a span {
@@ -134,9 +129,8 @@ input {
     align-items: center;
     gap: 9px;
 
-    width: 245px;
-    min-width: 170px;
-
+    width: 235px;
+    min-width: 145px;
     padding: 8px 13px;
 
     background: #e8f7f2;
@@ -147,8 +141,8 @@ input {
 }
 
 .search-box:focus-within {
-    border-color: #8ac9b8;
     background: white;
+    border-color: #8ac9b8;
 }
 
 .search-box span {
@@ -159,7 +153,6 @@ input {
 .search-box input {
     width: 100%;
     min-width: 0;
-
     padding: 0;
 
     background: transparent;
@@ -167,7 +160,7 @@ input {
     outline: none;
 
     color: var(--text);
-    font-size: 12px;
+    font-size: 11px;
 }
 
 .search-box input::placeholder {
@@ -179,13 +172,14 @@ input {
 .user-area {
     display: flex;
     align-items: center;
-    gap: 12px;
+    flex-shrink: 0;
+    gap: 11px;
 }
 
 .user-profile {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 9px;
 }
 
 .avatar {
@@ -197,7 +191,6 @@ input {
 
     color: white;
     background: var(--primary-dark);
-
     border-radius: 50%;
 
     font-size: 15px;
@@ -207,18 +200,17 @@ input {
 .user-text {
     display: flex;
     flex-direction: column;
-
     line-height: 1.4;
 }
 
 .user-text strong {
-    font-size: 12px;
     color: #354841;
+    font-size: 11px;
 }
 
 .user-text small {
-    font-size: 11px;
     color: var(--muted);
+    font-size: 10px;
 }
 
 .logout {
@@ -230,48 +222,36 @@ input {
     color: #d65e54;
 }
 
-/* =========================================
-   MAIN CONTAINER
-========================================= */
-
-.dashboard-container {
-    width: min(100% - 64px, 1450px);
-    margin: 0 auto;
-}
-
-/* =========================================
-   HERO
-========================================= */
+/* ==================================================
+   3. HERO SECTION
+================================================== */
 
 .hero {
     position: relative;
 
     display: grid;
-    grid-template-columns: 1.6fr .7fr;
+    grid-template-columns: minmax(0, 1.6fr) minmax(220px, .7fr);
     align-items: center;
 
     min-height: 235px;
-
-    margin-top: 27px;
-    padding: 32px 36px;
+    margin-top: 26px;
+    padding: 28px 32px;
 
     overflow: hidden;
 
-    background:
-        linear-gradient(
-            110deg,
-            #e4f7f0 0%,
-            #effaf6 65%,
-            #ffffff 100%
-        );
+    background: linear-gradient(
+        110deg,
+        #e3f6ef 0%,
+        #f1faf6 65%,
+        #ffffff 100%
+    );
 
     border: 1px solid #d8ede5;
-    border-radius: 23px;
+    border-radius: 21px;
 }
 
 .hero::before {
     content: "";
-
     position: absolute;
 
     width: 300px;
@@ -280,13 +260,14 @@ input {
     right: 18%;
     top: -210px;
 
-    background: rgba(255,255,255,.48);
+    background: rgba(255, 255, 255, .45);
     border-radius: 50%;
 }
 
 .hero-content {
     position: relative;
     z-index: 2;
+    min-width: 0;
 }
 
 .welcome-label {
@@ -296,19 +277,17 @@ input {
 
     padding: 6px 12px;
 
-    background: #d3eee6;
     color: #247c70;
-
+    background: #d3eee6;
     border-radius: 30px;
 
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 750;
 }
 
 .dot {
     width: 7px;
     height: 7px;
-
     background: var(--primary);
     border-radius: 50%;
 }
@@ -316,21 +295,20 @@ input {
 .hero h1 {
     margin: 12px 0 8px;
 
-    color: var(--primary);
-    font-size: clamp(27px, 3vw, 36px);
+    color: #208e8c;
+    font-size: clamp(26px, 3vw, 35px);
     font-weight: 850;
 
     letter-spacing: -1px;
-    line-height: 1.25;
+    line-height: 1.3;
 }
 
 .hero-description {
     max-width: 620px;
-
     margin: 0;
 
-    color: #788f86;
-    font-size: 14px;
+    color: #78938a;
+    font-size: 13px;
     line-height: 1.8;
 }
 
@@ -338,7 +316,6 @@ input {
     display: flex;
     align-items: center;
     gap: 13px;
-
     margin-top: 18px;
 }
 
@@ -349,22 +326,20 @@ input {
     justify-content: center;
     gap: 10px;
 
-    min-height: 42px;
+    min-height: 40px;
     padding: 10px 18px;
 
     border-radius: 11px;
 
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 750;
-
     transition: .2s ease;
 }
 
 .btn-primary {
     color: white;
     background: var(--primary);
-
-    box-shadow: 0 4px 9px rgba(32,139,131,.16);
+    box-shadow: 0 4px 9px rgba(32, 139, 131, .16);
 }
 
 .btn-primary:hover {
@@ -384,71 +359,72 @@ input {
     border-color: #9ccfc0;
 }
 
-.hero-image {
+/* MASCOT */
+
+.hero-visual {
     position: relative;
+    z-index: 1;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    height: 190px;
+    width: 100%;
+    min-height: 200px;
 }
 
-.hero-image img {
-    position: relative;
-    z-index: 1;
+.hero-visual img.dashboard-mascot {
+    display: block;
 
-    width: auto;
-    height: 100%;
+    width: 220px;
     max-width: 100%;
+    height: auto;
 
     object-fit: contain;
+    margin: 0;
 
-    filter: drop-shadow(
-        0 10px 12px rgba(25, 86, 73, .09)
-    );
+    filter: drop-shadow(0 8px 12px rgba(25, 86, 73, .08));
 
-    animation: floatMascot 4s ease-in-out infinite;
+    animation: skilloraFloat 2.5s ease-in-out infinite;
 }
 
-@keyframes floatMascot {
+@keyframes skilloraFloat {
     0%, 100% {
         transform: translateY(0);
     }
 
     50% {
-        transform: translateY(-7px);
+        transform: translateY(-10px);
     }
 }
 
-/* =========================================
-   STATISTICS
-========================================= */
+/* ==================================================
+   4. STATISTICS
+================================================== */
 
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 17px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
 
     margin-top: 23px;
 }
 
 .stat-card {
     min-width: 0;
-    padding: 19px 21px;
+    padding: 18px 20px;
 
     background: white;
     border: 1px solid var(--border);
     border-radius: var(--radius);
 
     box-shadow: var(--shadow);
-
     transition: .2s ease;
 }
 
 .stat-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 9px 25px rgba(31,87,73,.07);
+    box-shadow: 0 9px 25px rgba(31, 87, 73, .07);
 }
 
 .stat-top {
@@ -458,8 +434,8 @@ input {
 }
 
 .stat-label {
-    color: #8b9d95;
-    font-size: 11px;
+    color: #84988f;
+    font-size: 10px;
     font-weight: 800;
     letter-spacing: .5px;
 }
@@ -468,49 +444,46 @@ input {
     display: grid;
     place-items: center;
 
-    width: 37px;
-    height: 37px;
+    width: 35px;
+    height: 35px;
 
     color: var(--primary-dark);
     background: #e5f5ef;
-
     border-radius: 11px;
 
-    font-size: 19px;
+    font-size: 18px;
 }
 
 .stat-number {
     margin-top: 9px;
 
     color: #30463e;
-    font-size: 28px;
+    font-size: 27px;
     font-weight: 850;
-
     line-height: 1.3;
 }
 
 .stat-number small {
     color: var(--primary);
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 650;
 }
 
 .stat-card p {
     margin: 4px 0 0;
-
-    color: #91a099;
-    font-size: 11px;
+    color: #879a91;
+    font-size: 10px;
 }
 
-/* =========================================
-   MAIN CONTENT GRID
-========================================= */
+/* ==================================================
+   5. MAIN CONTENT
+================================================== */
 
 .content-grid {
     display: grid;
-    grid-template-columns: 1.45fr 1fr;
+    grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
     align-items: start;
-    gap: 22px;
+    gap: 25px;
 
     margin-top: 24px;
 }
@@ -521,7 +494,7 @@ input {
 }
 
 .panel {
-    padding: 21px;
+    padding: 20px;
 
     background: white;
     border: 1px solid var(--border);
@@ -547,9 +520,8 @@ input {
 .section-title-row h2,
 .learning-heading h2 {
     margin: 0;
-
     color: #354b43;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 800;
 }
 
@@ -557,9 +529,8 @@ input {
 .section-title-row p,
 .learning-heading p {
     margin: 4px 0 0;
-
-    color: #8a9b93;
-    font-size: 11px;
+    color: #879b92;
+    font-size: 10px;
 }
 
 .level-badge {
@@ -567,7 +538,6 @@ input {
 
     color: #278575;
     background: #e6f5ef;
-
     border-radius: 30px;
 
     font-size: 10px;
@@ -575,9 +545,9 @@ input {
     white-space: nowrap;
 }
 
-/* =========================================
-   PROGRESS
-========================================= */
+/* ==================================================
+   6. ASSESSMENT PROGRESS
+================================================== */
 
 .progress-info {
     display: flex;
@@ -588,7 +558,7 @@ input {
     margin-bottom: 9px;
 
     color: #61756c;
-    font-size: 11px;
+    font-size: 10px;
 }
 
 .progress-percent {
@@ -606,15 +576,13 @@ input {
 .progress-fill {
     height: 100%;
 
-    background:
-        linear-gradient(
-            90deg,
-            #4cb79a,
-            #218e82
-        );
+    background: linear-gradient(
+        90deg,
+        #4cb79a,
+        #218e82
+    );
 
     border-radius: inherit;
-
     transition: width .5s ease;
 }
 
@@ -645,7 +613,6 @@ input {
 .info-icon {
     display: grid;
     place-items: center;
-
     flex-shrink: 0;
 
     width: 23px;
@@ -653,7 +620,6 @@ input {
 
     color: white;
     background: var(--primary);
-
     border-radius: 50%;
 
     font-size: 13px;
@@ -668,7 +634,6 @@ input {
 
 .information-box p {
     margin: 4px 0 0;
-
     color: #84968d;
     font-size: 10px;
     line-height: 1.7;
@@ -699,11 +664,12 @@ input {
     white-space: nowrap;
 }
 
-/* =========================================
-   SKILL SUMMARY
-========================================= */
+/* ==================================================
+   7. SKILL SUMMARY
+================================================== */
 
 .small-link {
+    display: inline-block;
     padding: 7px 10px;
 
     color: var(--primary-dark);
@@ -760,13 +726,12 @@ input {
 .skill-fill {
     height: 100%;
     border-radius: inherit;
-
     transition: width .5s ease;
 }
 
-/* =========================================
-   CAREER RECOMMENDATIONS
-========================================= */
+/* ==================================================
+   8. CAREER RECOMMENDATIONS
+================================================== */
 
 .recommendation-section {
     min-width: 0;
@@ -790,22 +755,25 @@ input {
 }
 
 .career-card {
-    padding: 17px;
+    padding: 16px;
     margin-bottom: 13px;
 
     background: white;
     border: 1px solid var(--border);
-    border-radius: 16px;
+    border-radius: 15px;
 
     box-shadow: var(--shadow);
-
     transition: .2s ease;
+}
+
+.career-card:last-child {
+    margin-bottom: 0;
 }
 
 .career-card:hover {
     transform: translateY(-2px);
     border-color: #c8e3d9;
-    box-shadow: 0 9px 22px rgba(31,87,73,.06);
+    box-shadow: 0 9px 22px rgba(31, 87, 73, .06);
 }
 
 .career-top {
@@ -817,7 +785,6 @@ input {
 .career-icon {
     display: grid;
     place-items: center;
-
     flex-shrink: 0;
 
     width: 39px;
@@ -825,7 +792,6 @@ input {
 
     color: var(--primary-dark);
     background: #e8f6f1;
-
     border-radius: 11px;
 
     font-size: 17px;
@@ -839,7 +805,6 @@ input {
 
 .career-title h3 {
     margin: 0;
-
     color: #394d44;
     font-size: 12px;
     font-weight: 800;
@@ -848,7 +813,6 @@ input {
 .career-title span {
     display: block;
     margin-top: 3px;
-
     color: #8c9d95;
     font-size: 10px;
 }
@@ -858,7 +822,6 @@ input {
 
     color: #27816d;
     background: #e6f5ed;
-
     border-radius: 30px;
 
     font-size: 10px;
@@ -887,7 +850,6 @@ input {
     gap: 10px;
 
     padding-top: 11px;
-
     border-top: 1px solid #edf2ef;
 
     color: #8b9b93;
@@ -899,20 +861,18 @@ input {
 
     color: var(--primary-dark);
     background: #f0f8f4;
-
     border-radius: 8px;
 
     font-weight: 750;
     white-space: nowrap;
 }
 
-/* =========================================
-   EMPTY STATE
-========================================= */
+/* ==================================================
+   9. EMPTY STATE
+================================================== */
 
 .empty-state {
     padding: 28px 16px;
-
     text-align: center;
 
     background: #f8fbf9;
@@ -922,7 +882,6 @@ input {
 
 .empty-icon {
     display: block;
-
     margin-bottom: 9px;
 
     color: var(--primary);
@@ -931,7 +890,6 @@ input {
 
 .empty-state h3 {
     margin: 0 0 7px;
-
     color: #52695f;
     font-size: 13px;
 }
@@ -953,9 +911,9 @@ input {
     margin-top: 10px;
 }
 
-/* =========================================
-   LEARNING SECTION
-========================================= */
+/* ==================================================
+   10. LEARNING SECTION
+================================================== */
 
 .learning-section {
     margin-top: 34px;
@@ -983,21 +941,19 @@ input {
 
     min-width: 0;
     min-height: 185px;
-
     padding: 18px;
 
     background: white;
     border: 1px solid var(--border);
-    border-radius: 17px;
+    border-radius: 16px;
 
     box-shadow: var(--shadow);
-
     transition: .2s ease;
 }
 
 .learning-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 10px 25px rgba(31,87,73,.07);
+    box-shadow: 0 10px 25px rgba(31, 87, 73, .07);
 }
 
 .learning-top {
@@ -1012,7 +968,6 @@ input {
 
     color: #27816e;
     background: #e9f6ef;
-
     border-radius: 7px;
 
     font-size: 9px;
@@ -1026,7 +981,6 @@ input {
 
 .learning-card h3 {
     margin: 13px 0 7px;
-
     color: #43584e;
     font-size: 13px;
     line-height: 1.5;
@@ -1034,7 +988,6 @@ input {
 
 .learning-card p {
     flex: 1;
-
     margin: 0;
 
     color: #8a9a92;
@@ -1058,16 +1011,18 @@ input {
 }
 
 .video-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
     padding: 8px 12px;
 
     color: white;
     background: var(--primary);
-
     border-radius: 9px;
 
     font-size: 10px;
     font-weight: 750;
-
     white-space: nowrap;
 }
 
@@ -1076,9 +1031,9 @@ input {
     background: var(--primary-dark);
 }
 
-/* =========================================
-   FOOTER
-========================================= */
+/* ==================================================
+   11. FOOTER
+================================================== */
 
 .footer {
     display: flex;
@@ -1125,15 +1080,15 @@ input {
     color: var(--primary-dark);
 }
 
-/* =========================================
-   TABLET
-========================================= */
+/* ==================================================
+   12. TABLET
+================================================== */
 
 @media (max-width: 1100px) {
 
     .navbar {
         flex-wrap: wrap;
-        padding: 14px 24px;
+        padding: 13px 24px;
         gap: 13px;
     }
 
@@ -1151,14 +1106,22 @@ input {
         width: calc(100% - 40px);
     }
 
+    .hero {
+        grid-template-columns: minmax(0, 1.5fr) minmax(180px, .7fr);
+    }
+
+    .hero-visual img.dashboard-mascot {
+        width: 195px;
+    }
+
     .content-grid {
-        grid-template-columns: 1.2fr 1fr;
+        grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
     }
 }
 
-/* =========================================
-   MOBILE
-========================================= */
+/* ==================================================
+   13. MOBILE
+================================================== */
 
 @media (max-width: 760px) {
 
@@ -1197,20 +1160,25 @@ input {
 
     .hero {
         grid-template-columns: 1fr;
-        padding: 25px 22px;
+        padding: 24px 20px;
         margin-top: 17px;
     }
 
     .hero h1 {
-        font-size: 28px;
+        font-size: 27px;
     }
 
     .hero-description {
         font-size: 12px;
     }
 
-    .hero-image {
-        height: 165px;
+    .hero-visual {
+        min-height: 150px;
+        margin-top: 12px;
+    }
+
+    .hero-visual img.dashboard-mascot {
+        width: 175px;
     }
 
     .stats-grid {
@@ -1257,9 +1225,9 @@ input {
     }
 }
 
-/* =========================================
-   SMALL MOBILE
-========================================= */
+/* ==================================================
+   14. SMALL MOBILE
+================================================== */
 
 @media (max-width: 420px) {
 
@@ -1292,10 +1260,11 @@ input {
     .learning-heading {
         flex-direction: column;
     }
-
 }
 
-/* ACCESSIBILITY */
+/* ==================================================
+   15. ACCESSIBILITY
+================================================== */
 
 @media (prefers-reduced-motion: reduce) {
 
@@ -1307,107 +1276,7 @@ input {
     }
 
 }
-/* =========================================
-   ANIMASI MASKOT DASHBOARD SKILLORA
-   ========================================= */
 
-.dashboard-mascot {
-    display: block;
-    width: 180px;
-    max-width: 100%;
-    height: auto;
-    margin: 0 auto 12px;
-
-    animation: skilloraFloat 2s ease-in-out infinite;
-    will-change: transform;
-}
-
-@keyframes skilloraFloat {
-    0%, 100% {
-        transform: translateY(0);
-    }
-
-    50% {
-        transform: translateY(-20px);
-    }
-}
-/* POSISI MASKOT DI ATAS TEKS */
-
-.hero-visual {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    min-height: 350px;
-    position: relative;
-}
-
-.hero-visual::before {
-    display: none;
-}
-
-.mascot-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    width: 100%;
-    gap: 15px;
-}
-
-.dashboard-mascot {
-    display: block;
-    width: 230px;
-    max-width: 100%;
-    height: auto;
-    object-fit: contain;
-}
-
-.mascot-content h2 {
-    margin: 0;
-    color: var(--dashboard-teal-dark);
-    font-size: 28px;
-    font-weight: 800;
-    line-height: 1.3;
-    text-align: center;
-}
-
-/* MERAPIKAN TEKS DI BAWAH MASKOT */
-
-.mascot-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    width: 100%;
-    gap: 0;
-}
-
-.mascot-content h2 {
-    margin: 18px 0 12px;
-    color: var(--dashboard-dark);
-    font-size: 25px;
-    font-weight: 800;
-    line-height: 1.3;
-    text-align: center;
-}
-
-.mascot-content p {
-    max-width: 310px;
-    margin: 0 auto 14px;
-    color: var(--dashboard-text);
-    font-size: 14px;
-    line-height: 1.7;
-    text-align: center;
-}
-
-.mascot-content strong {
-    display: block;
-    margin-top: 2px;
-    color: var(--dashboard-teal-dark);
-    font-size: 13px;
-    font-weight: 700;
-    line-height: 1.5;
-    text-align: center;
+body {
+    background: #ffffff !important;
 }

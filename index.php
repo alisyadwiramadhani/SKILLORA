@@ -270,27 +270,9 @@ $videos = [
     <meta name="theme-color" content="#10594e">
     <title>Dashboard | SKILLORA</title>
 
-    <link rel="stylesheet" href="assets/css/global.css">
-    <link rel="stylesheet" href="assets/css/dashboard.css">
+    <link rel="stylesheet" href="assets/css/global.css?v=2">
+<link rel="stylesheet" href="assets/css/dashboard.css?v=100">
 
-    <!-- ANIMASI MASKOT -->
-    <style>
-        @keyframes maskotNaikTurun {
-            0% { transform: translateY(0); }
-            50% { transform: translateY(-30px); }
-            100% { transform: translateY(0); }
-        }
-
-        .hero-visual img.dashboard-mascot {
-            display: block;
-            width: 230px;
-            max-width: 100%;
-            height: auto;
-            object-fit: contain;
-            animation: maskotNaikTurun 1.5s ease-in-out infinite;
-            will-change: transform;
-        }
-    </style>
 </head>
 
 <body>
