@@ -120,17 +120,6 @@ $nama = htmlspecialchars(
                 class="dashboard-mascot"
             >
 
-            <h2>Grow Your Skills</h2>
-
-            <p>
-                Kenali kemampuanmu dan kembangkan potensimu
-                selangkah demi selangkah.
-            </p>
-
-            <strong style="font-size: 13px; color: #42665a;">
-                Pengembangan diri dimulai di sini
-            </strong>
-
             <div class="skill-line">
                 <span></span>
             </div>
