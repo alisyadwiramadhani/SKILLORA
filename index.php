@@ -316,12 +316,6 @@ $videos = [
 
     <!-- NAVIGASI UTAMA TANPA NOTIFIKASI -->
     <nav class="nav-links">
-<<<<<<< HEAD
-        <a href="index.php" class="active"><span>⌂</span> Beranda</a>
-        <a href="backend/assesment/start.php"><span>▣</span> Assessment</a>
-        <a href="backend/assesment/rekomendasi_karier.php"><span>◎</span> Rekomendasi Karier</a>
-=======
-
         <a href="index.php" class="active">
             <span>⌂</span> Beranda
         </a>
@@ -333,8 +327,6 @@ $videos = [
         <a href="backend/assesment/rekomendasi_karier.php">
             <span>◎</span> Rekomendasi Karier
         </a>
-
->>>>>>> a63d855 (profil done)
     </nav>
 
     <!-- PENCARIAN -->
@@ -496,10 +488,7 @@ $videos = [
         <div class="left-column">
 
             <!-- PROGRESS ASSESSMENT -->
-<<<<<<< HEAD
-=======
             <article class="panel progress-panel">
->>>>>>> a63d855 (profil done)
 
                 <div class="panel-heading">
 
