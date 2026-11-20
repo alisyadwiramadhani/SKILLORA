@@ -1,3 +1,4 @@
+
 <?php
 session_start();
 
@@ -6,6 +7,7 @@ require_once __DIR__ . "/config/database.php";
 // ======================================
 // 1. VALIDASI LOGIN
 // ======================================
+
 if (empty($_SESSION["ID_User"])) {
     header("Location: backend/login_form.php");
     exit;
@@ -14,11 +16,7 @@ if (empty($_SESSION["ID_User"])) {
 $id_user = (int) $_SESSION["ID_User"];
 
 function e($value) {
-    return htmlspecialchars(
-        (string) $value,
-        ENT_QUOTES,
-        "UTF-8"
-    );
+    return htmlspecialchars((string) $value, ENT_QUOTES, "UTF-8");
 }
 
 $nama = $_SESSION["Nama"] ?? "Mahasiswa";
@@ -45,7 +43,11 @@ $totalTerjawab = 0;
 $dashboardError = false;
 
 try {
+
+    // ======================================
     // 2. DATA PROFIL PENGGUNA
+    // ======================================
+
     $stmt = $conn->prepare("
         SELECT
             u.Nama,
@@ -70,7 +72,10 @@ try {
         $_SESSION["Nama"] = $nama;
     }
 
+    // ======================================
     // 3. STATISTIK ASSESSMENT
+    // ======================================
+
     $stmt = $conn->prepare("
         SELECT
             COUNT(*) AS total_assessment,
@@ -90,12 +95,18 @@ try {
     $totalAssessment = (int) ($statAssessment["total_assessment"] ?? 0);
     $totalSelesai = (int) ($statAssessment["total_selesai"] ?? 0);
 
+    // ======================================
     // 4. JUMLAH SKILL
+    // ======================================
+
     $totalSkill = (int) $conn->query("
         SELECT COUNT(*) FROM T_Skill
     ")->fetchColumn();
 
+    // ======================================
     // 5. ASSESSMENT TERBARU
+    // ======================================
+
     $stmt = $conn->prepare("
         SELECT
             ID_Assessment,
@@ -112,8 +123,12 @@ try {
     $stmt->execute([":id_user" => $id_user]);
     $latestAssessment = $stmt->fetch(PDO::FETCH_ASSOC);
 
+    // ======================================
     // 6. PROGRESS JAWABAN TERBARU
+    // ======================================
+
     if ($latestAssessment) {
+
         $id_latest = (int) $latestAssessment["ID_Assessment"];
         $_SESSION["ID_Assessment"] = $id_latest;
 
@@ -142,7 +157,10 @@ try {
         $totalTerjawab = (int) $stmt->fetchColumn();
     }
 
+    // ======================================
     // 7. HASIL ASSESSMENT TERBARU
+    // ======================================
+
     $stmt = $conn->prepare("
         SELECT a.ID_Assessment
         FROM T_Assessment a
@@ -157,8 +175,12 @@ try {
     $stmt->execute([":id_user" => $id_user]);
     $completedId = (int) $stmt->fetchColumn();
 
+    // ======================================
     // 8. RINGKASAN KETERAMPILAN
+    // ======================================
+
     if ($completedId > 0) {
+
         $stmt = $conn->prepare("
             SELECT
                 s.Kategori,
@@ -175,8 +197,12 @@ try {
         $skillCategories = $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // ======================================
     // 9. REKOMENDASI KARIER
+    // ======================================
+
     if ($completedId > 0) {
+
         $stmt = $conn->prepare("
             SELECT COUNT(*)
             FROM T_Rekomendasi_Karier
@@ -207,17 +233,19 @@ try {
     }
 
 } catch (Throwable $e) {
+
     error_log("Dashboard Skillora: " . $e->getMessage());
     $dashboardError = true;
 }
 
+// ======================================
 // 10. PERSENTASE PROGRESS
+// ======================================
+
 $progress = 0;
 
 if ($totalPertanyaan > 0) {
-    $progress = round(
-        ($totalTerjawab / $totalPertanyaan) * 100
-    );
+    $progress = round(($totalTerjawab / $totalPertanyaan) * 100);
 }
 
 $progress = max(0, min(100, $progress));
@@ -233,7 +261,10 @@ foreach ($skillCategories as $skill) {
 
 $maxSkillScore = max(1, $maxSkillScore);
 
+// ======================================
 // 11. VIDEO PEMBELAJARAN
+// ======================================
+
 $videos = [
     [
         "category" => "DESAIN PRODUK",
@@ -262,58 +293,97 @@ $videos = [
 ];
 
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#10594e">
+
     <title>Dashboard | SKILLORA</title>
 
     <link rel="stylesheet" href="assets/css/global.css?v=2">
-<link rel="stylesheet" href="assets/css/dashboard.css?v=100">
-
+    <link rel="stylesheet" href="assets/css/dashboard.css?v=100">
 </head>
 
 <body>
 
 <header class="navbar">
+
     <a href="index.php" class="brand">SKILLORA</a>
 
+    <!-- NAVIGASI UTAMA TANPA NOTIFIKASI -->
     <nav class="nav-links">
+<<<<<<< HEAD
         <a href="index.php" class="active"><span>⌂</span> Beranda</a>
         <a href="backend/assesment/start.php"><span>▣</span> Assessment</a>
         <a href="backend/assesment/rekomendasi_karier.php"><span>◎</span> Rekomendasi Karier</a>
+=======
+
+        <a href="index.php" class="active">
+            <span>⌂</span> Beranda
+        </a>
+
+        <a href="backend/assesment/start.php">
+            <span>▣</span> Assessment
+        </a>
+
+        <a href="backend/assesment/rekomendasi_karier.php">
+            <span>◎</span> Rekomendasi Karier
+        </a>
+
+>>>>>>> a63d855 (profil done)
     </nav>
 
-    <form class="search-box"
-          action="backend/assesment/rekomendasi_karier.php"
-          method="get">
+    <!-- PENCARIAN -->
+    <form
+        class="search-box"
+        action="backend/assesment/rekomendasi_karier.php"
+        method="get"
+    >
         <span>⌕</span>
-        <input type="search" name="q"
-               placeholder="Cari karier, skill, atau pelatihan..."
-               aria-label="Cari karier, skill, atau pelatihan">
+
+        <input
+            type="search"
+            name="q"
+            placeholder="Cari karier, skill, atau pelatihan..."
+            aria-label="Cari karier, skill, atau pelatihan"
+        >
     </form>
 
+    <!-- PROFIL PENGGUNA -->
     <div class="user-area">
+
         <a href="backend/profil.php" class="user-profile">
-            <span class="avatar"><?= e($inisial) ?></span>
+
+            <span class="avatar">
+                <?= e($inisial) ?>
+            </span>
+
             <span class="user-text">
                 <strong><?= e($nama) ?></strong>
                 <small>Mahasiswa</small>
             </span>
+
         </a>
 
-        <a href="backend/logout.php"
-           class="logout"
-           title="Keluar dari akun">↪</a>
+        <a
+            href="backend/logout.php"
+            class="logout"
+            title="Keluar dari akun"
+        >↪</a>
+
     </div>
+
 </header>
 
 <main class="dashboard-container">
 
     <!-- HERO SECTION -->
     <section class="hero">
+
         <div class="hero-content">
 
             <div class="welcome-label">
@@ -333,59 +403,89 @@ $videos = [
             </p>
 
             <div class="hero-actions">
-                <a href="backend/assesment/start.php"
-                   class="btn-primary">
+
+                <a
+                    href="backend/assesment/start.php"
+                    class="btn-primary"
+                >
                     Mulai Assessment <span>→</span>
                 </a>
 
                 <a href="backend/profil.php" class="btn-white">
                     Lihat Profil Saya
                 </a>
+
             </div>
+
         </div>
 
         <!-- MASKOT SKILLORA -->
-        <div class="hero-visual" aria-label="Ilustrasi pengembangan skill">
+        <div
+            class="hero-visual"
+            aria-label="Ilustrasi pengembangan skill"
+        >
+
             <img
                 src="assets/images/mascot.png"
                 alt="Maskot Skillora"
                 class="dashboard-mascot"
             >
-            <div class="skill-line"><span></span></div>
+
+            <div class="skill-line">
+                <span></span>
+            </div>
+
         </div>
+
     </section>
 
     <!-- STATISTIK -->
     <section class="stats-grid">
 
         <article class="stat-card">
+
             <div class="stat-top">
                 <span class="stat-label">ASSESSMENT</span>
                 <span class="stat-icon">◉</span>
             </div>
+
             <div class="stat-number">
                 <?= $totalSelesai ?>
                 <small>/ <?= $totalAssessment ?> Selesai</small>
             </div>
+
             <p>Total assessment yang sudah diselesaikan</p>
+
         </article>
 
         <article class="stat-card">
+
             <div class="stat-top">
                 <span class="stat-label">SKILL TERPETAKAN</span>
                 <span class="stat-icon">↗</span>
             </div>
-            <div class="stat-number"><?= $totalSkill ?></div>
+
+            <div class="stat-number">
+                <?= $totalSkill ?>
+            </div>
+
             <p>Keterampilan yang tersedia dalam Skillora</p>
+
         </article>
 
         <article class="stat-card">
+
             <div class="stat-top">
                 <span class="stat-label">REKOMENDASI KARIER</span>
                 <span class="stat-icon">▥</span>
             </div>
-            <div class="stat-number"><?= $totalRekomendasi ?></div>
+
+            <div class="stat-number">
+                <?= $totalRekomendasi ?>
+            </div>
+
             <p>Rekomendasi dari assessment terakhir</p>
+
         </article>
 
     </section>
@@ -396,8 +496,13 @@ $videos = [
         <div class="left-column">
 
             <!-- PROGRESS ASSESSMENT -->
+<<<<<<< HEAD
+=======
+            <article class="panel progress-panel">
+>>>>>>> a63d855 (profil done)
 
                 <div class="panel-heading">
+
                     <div>
                         <h2>Progress Pengembangan Diri</h2>
                         <p>Pantau perkembangan assessment-mu.</p>
@@ -408,76 +513,123 @@ $videos = [
                             ? e($latestAssessment["Status"])
                             : "Belum Memulai" ?>
                     </span>
+
                 </div>
 
                 <?php if ($latestAssessment): ?>
 
                     <div class="progress-info">
+
                         <strong>Progress Assessment Terakhir</strong>
-                        <strong class="progress-percent"><?= $progress ?>%</strong>
+
+                        <strong class="progress-percent">
+                            <?= $progress ?>%
+                        </strong>
+
                     </div>
 
                     <div class="progress-track">
-                        <div class="progress-fill"
-                             style="width: <?= $progress ?>%"></div>
+
+                        <div
+                            class="progress-fill"
+                            style="width: <?= $progress ?>%"
+                        ></div>
+
                     </div>
 
                     <div class="progress-caption">
+
                         <span>
                             <?= $totalTerjawab ?> dari
                             <?= $totalPertanyaan ?> pertanyaan terjawab
                         </span>
-                        <span><?= e($latestAssessment["Status"]) ?></span>
+
+                        <span>
+                            <?= e($latestAssessment["Status"]) ?>
+                        </span>
+
                     </div>
 
                     <div class="information-box">
+
                         <span class="info-icon">i</span>
+
                         <div>
+
                             <?php if ($latestAssessment["Status"] === "Completed"): ?>
-                                <strong>Assessment berhasil diselesaikan!</strong>
+
+                                <strong>
+                                    Assessment berhasil diselesaikan!
+                                </strong>
+
                                 <p>
                                     Kamu dapat melihat hasil pemetaan
                                     keterampilan dan rekomendasi karier.
                                 </p>
+
                             <?php else: ?>
-                                <strong>Lanjutkan assessment-mu.</strong>
+
+                                <strong>
+                                    Lanjutkan assessment-mu.
+                                </strong>
+
                                 <p>
                                     Selesaikan seluruh pertanyaan agar
                                     Skillora dapat menampilkan hasil
                                     pemetaan keterampilan.
                                 </p>
+
                             <?php endif; ?>
+
                         </div>
+
                     </div>
 
                     <div class="progress-footer">
+
                         <span>
                             Assessment terakhir:
-                            <strong><?= e($latestAssessment["Tanggal"] ?? "-") ?></strong>
+                            <strong>
+                                <?= e($latestAssessment["Tanggal"] ?? "-") ?>
+                            </strong>
                         </span>
 
                         <?php if ($latestAssessment["Status"] === "Completed"): ?>
-                            <a href="backend/hasil.php">Lihat Hasil →</a>
+
+                            <a href="backend/hasil.php">
+                                Lihat Hasil →
+                            </a>
+
                         <?php else: ?>
+
                             <a href="backend/assesment/kerjakan.php">
                                 Lanjutkan Assessment →
                             </a>
+
                         <?php endif; ?>
+
                     </div>
 
                 <?php else: ?>
 
                     <div class="empty-state">
+
                         <span class="empty-icon">◎</span>
+
                         <h3>Belum ada assessment</h3>
+
                         <p>
                             Mulai assessment pertamamu untuk mengetahui
                             keterampilan dan potensi yang kamu miliki.
                         </p>
-                        <a href="backend/assesment/start.php"
-                           class="btn-primary">
+
+                        <a
+                            href="backend/assesment/start.php"
+                            class="btn-primary"
+                        >
                             Mulai Sekarang →
                         </a>
+
                     </div>
 
                 <?php endif; ?>
@@ -488,14 +640,18 @@ $videos = [
             <article class="panel skill-panel">
 
                 <div class="panel-heading">
+
                     <div>
                         <h2>Ringkasan Keterampilan</h2>
-                        <p>Skor analitik berdasarkan kategori keterampilan.</p>
+                        <p>
+                            Skor analitik berdasarkan kategori keterampilan.
+                        </p>
                     </div>
 
                     <a href="backend/hasil.php" class="small-link">
                         Lihat Hasil Lengkap
                     </a>
+
                 </div>
 
                 <?php if (!empty($skillCategories)): ?>
@@ -518,18 +674,28 @@ $videos = [
                         ?>
 
                         <div class="skill-item">
+
                             <div class="skill-header">
+
                                 <strong>
                                     <?= e($skill["Kategori"] ?: "Kategori lainnya") ?>
                                 </strong>
-                                <span><?= number_format($score, 1) ?> poin</span>
+
+                                <span>
+                                    <?= number_format($score, 1) ?> poin
+                                </span>
+
                             </div>
 
                             <div class="skill-track">
-                                <div class="skill-fill"
-                                     style="width: <?= $width ?>%; background: <?= $barColor ?>;">
-                                </div>
+
+                                <div
+                                    class="skill-fill"
+                                    style="width: <?= $width ?>%; background: <?= $barColor ?>;"
+                                ></div>
+
                             </div>
+
                         </div>
 
                     <?php endforeach; ?>
@@ -537,12 +703,16 @@ $videos = [
                 <?php else: ?>
 
                     <div class="empty-state skill-empty">
+
                         <span class="empty-icon">✧</span>
+
                         <h3>Hasil keterampilan belum tersedia</h3>
+
                         <p>
                             Selesaikan assessment terlebih dahulu
                             untuk melihat ringkasan keterampilan.
                         </p>
+
                     </div>
 
                 <?php endif; ?>
@@ -557,14 +727,18 @@ $videos = [
             <section class="recommendation-section">
 
                 <div class="section-title-row">
+
                     <div>
                         <h2>Rekomendasi Karier</h2>
-                        <p>Pilihan karier berdasarkan hasil assessment.</p>
+                        <p>
+                            Pilihan karier berdasarkan hasil assessment.
+                        </p>
                     </div>
 
                     <a href="backend/assesment/rekomendasi_karier.php">
                         Lihat Semua
                     </a>
+
                 </div>
 
                 <?php if (!empty($topCareers)): ?>
@@ -574,6 +748,7 @@ $videos = [
                         <?php $careerIcons = ["▣", "▥", "</>"]; ?>
 
                         <article class="career-card">
+
                             <div class="career-top">
 
                                 <div class="career-icon">
@@ -581,8 +756,15 @@ $videos = [
                                 </div>
 
                                 <div class="career-title">
-                                    <h3><?= e($career["Nama_Karier"]) ?></h3>
-                                    <span><?= e($career["Bidang"]) ?></span>
+
+                                    <h3>
+                                        <?= e($career["Nama_Karier"]) ?>
+                                    </h3>
+
+                                    <span>
+                                        <?= e($career["Bidang"]) ?>
+                                    </span>
+
                                 </div>
 
                                 <span class="match-badge">
@@ -596,6 +778,7 @@ $videos = [
                             </p>
 
                             <div class="career-footer">
+
                                 <span>
                                     Rekomendasi #<?= (int) $career["Ranking"] ?>
                                 </span>
@@ -603,7 +786,9 @@ $videos = [
                                 <a href="backend/assesment/rekomendasi_karier.php">
                                     Lihat Detail →
                                 </a>
+
                             </div>
+
                         </article>
 
                     <?php endforeach; ?>
@@ -611,15 +796,23 @@ $videos = [
                 <?php else: ?>
 
                     <div class="empty-state career-empty">
+
                         <span class="empty-icon">◎</span>
+
                         <h3>Rekomendasi belum tersedia</h3>
+
                         <p>
                             Selesaikan assessment agar sistem dapat
                             menampilkan pilihan karier yang relevan.
                         </p>
-                        <a href="backend/assesment/start.php" class="small-link">
+
+                        <a
+                            href="backend/assesment/start.php"
+                            class="small-link"
+                        >
                             Mulai Assessment →
                         </a>
+
                     </div>
 
                 <?php endif; ?>
@@ -634,17 +827,22 @@ $videos = [
     <section class="learning-section" id="learning">
 
         <div class="learning-heading">
+
             <div>
+
                 <h2>Video Pembelajaran</h2>
+
                 <p>
                     Sumber belajar untuk memperkuat keterampilan
                     dan mempersiapkan perjalanan kariermu.
                 </p>
+
             </div>
 
             <a href="#learning">
                 Jelajahi Materi <span>→</span>
             </a>
+
         </div>
 
         <div class="learning-grid">
@@ -654,27 +852,40 @@ $videos = [
                 <article class="learning-card">
 
                     <div class="learning-top">
+
                         <span class="learning-category">
                             <?= e($video["category"]) ?>
                         </span>
+
                         <span class="learning-duration">
                             <?= e($video["duration"]) ?>
                         </span>
+
                     </div>
 
-                    <h3><?= e($video["title"]) ?></h3>
-                    <p><?= e($video["description"]) ?></p>
+                    <h3>
+                        <?= e($video["title"]) ?>
+                    </h3>
+
+                    <p>
+                        <?= e($video["description"]) ?>
+                    </p>
 
                     <div class="learning-footer">
-                        <span><?= e($video["rating"]) ?></span>
+
+                        <span>
+                            <?= e($video["rating"]) ?>
+                        </span>
 
                         <a
                             href="https://www.youtube.com/results?search_query=<?= urlencode($video["search"]) ?>"
                             target="_blank"
                             rel="noopener noreferrer"
-                            class="video-button">
+                            class="video-button"
+                        >
                             Cari Video ↗
                         </a>
+
                     </div>
 
                 </article>
@@ -687,20 +898,34 @@ $videos = [
 
 </main>
 
+<!-- FOOTER -->
 <footer class="footer">
 
     <div class="footer-brand">
+
         <strong>SKILLORA</strong>
+
         <span>
             © <?= date("Y") ?>.
             Kenali Potensimu, Bangun Masa Depanmu.
         </span>
+
     </div>
 
     <div class="footer-links">
-        <a href="backend/assesment/start.php">Panduan Assessment</a>
-        <a href="#learning">Materi Pembelajaran</a>
-        <a href="backend/logout.php">Keluar</a>
+
+        <a href="backend/assesment/start.php">
+            Panduan Assessment
+        </a>
+
+        <a href="#learning">
+            Materi Pembelajaran
+        </a>
+
+        <a href="backend/logout.php">
+            Keluar
+        </a>
+
     </div>
 
 </footer>
