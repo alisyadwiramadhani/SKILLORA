@@ -1,4 +1,3 @@
-
 <?php
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
@@ -28,11 +27,38 @@ $nama = htmlspecialchars(
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#10594e">
+
     <title>Dashboard | Skillora</title>
+
     <link rel="stylesheet" href="assets/css/global.css">
     <link rel="stylesheet" href="assets/css/dashboard.css">
 
+    <!-- ANIMASI MASKOT -->
+    <style>
+        @keyframes maskotNaikTurun {
+            0% {
+                transform: translateY(0);
+            }
 
+            50% {
+                transform: translateY(-30px);
+            }
+
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        .hero-visual img.dashboard-mascot {
+            display: block;
+            width: 230px;
+            max-width: 100%;
+            height: auto;
+            object-fit: contain;
+            animation: maskotNaikTurun 1.5s ease-in-out infinite !important;
+            will-change: transform;
+        }
+    </style>
 </head>
 
 <body>
@@ -51,8 +77,11 @@ $nama = htmlspecialchars(
 </header>
 
 <main>
+
     <section class="welcome">
+
         <div class="welcome-content">
+
             <p class="eyebrow">Selamat datang di Skillora</p>
 
             <h1>Halo, <?= $nama ?>!</h1>
@@ -68,6 +97,7 @@ $nama = htmlspecialchars(
             </p>
 
             <div class="hero-actions">
+
                 <a class="button" href="backend/assesment/start.php">
                     Mulai Assessment <span>→</span>
                 </a>
@@ -76,78 +106,106 @@ $nama = htmlspecialchars(
                    href="backend/assesment/rekomendasi_karier.php">
                     Lihat Rekomendasi
                 </a>
+
             </div>
+
         </div>
 
+        <!-- MASKOT SKILLORA -->
         <div class="hero-visual" aria-label="Ilustrasi pengembangan skill">
-            <div class="visual-card">
-                <div class="visual-icon"></div>
-                <h2>Grow Your Skills</h2>
-                <p>
-                    Kenali kemampuanmu dan kembangkan potensimu
-                    selangkah demi selangkah.
-                </p>
 
-                <strong style="font-size: 13px; color: #42665a;">
-                    Pengembangan diri dimulai di sini
-                </strong>
+            <img
+                src="assets/images/mascot.png"
+                alt="Maskot Skillora"
+                class="dashboard-mascot"
+            >
 
-                <div class="skill-line">
-                    <span></span>
-                </div>
+            <h2>Grow Your Skills</h2>
+
+            <p>
+                Kenali kemampuanmu dan kembangkan potensimu
+                selangkah demi selangkah.
+            </p>
+
+            <strong style="font-size: 13px; color: #42665a;">
+                Pengembangan diri dimulai di sini
+            </strong>
+
+            <div class="skill-line">
+                <span></span>
             </div>
+
         </div>
+
     </section>
 
     <section class="section-heading">
+
         <h2>Jelajahi Skillora</h2>
+
         <p>
             Pilih fitur untuk mengenali potensimu dan menemukan arah karier.
         </p>
+
     </section>
 
     <section class="cards">
+
         <article class="card">
+
             <div class="icon"></div>
+
             <h3>Assessment</h3>
+
             <p>
                 Jawab pertanyaan untuk mengenali profil keterampilan
                 dan potensi yang kamu miliki.
             </p>
+
             <a class="button" href="backend/assesment/start.php">
                 Mulai Assessment <span>→</span>
             </a>
-        </article>
+
         </article>
 
         <article class="card">
+
             <div class="icon"></div>
+
             <h3>Hasil Assessment</h3>
+
             <p>
                 Lihat hasil pemetaan keterampilan berdasarkan
                 jawaban assessment yang telah kamu kerjakan.
             </p>
+
             <a class="button"
                href="backend/assesment/hitung_skor_otomatis.php">
                 Lihat Hasil <span>→</span>
             </a>
-        </article>
+
         </article>
 
         <article class="card">
+
             <div class="icon"></div>
+
             <h3>Rekomendasi Karier</h3>
+
             <p>
                 Jelajahi pilihan karier berdasarkan hasil
                 dan skor keterampilanmu.
             </p>
+
             <a class="button"
                href="backend/assesment/rekomendasi_karier.php">
                 Lihat Rekomendasi <span>→</span>
             </a>
+
         </article>
-        </article>
+
     </section>
+
 </main>
 
 <footer>
